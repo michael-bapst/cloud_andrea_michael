@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cloud Übersicht</title>
+
+  <!-- UIkit -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.16.0/dist/css/uikit.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.16.0/dist/js/uikit.min.js"></script>
+
+  <style>
+    body { background: #f8f8f8; }
+    .folder { cursor: pointer; text-align: center; }
+    .folder-icon { width: 50px; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+
+<div class="uk-container uk-padding">
+  <h2 class="uk-heading-line uk-text-center"><span>Meine Cloud</span></h2>
+
+  <button class="uk-button uk-button-primary uk-margin-bottom" uk-toggle="target: #create-folder-modal">+ Neuer Ordner</button>
+
+  <div id="folder-list" class="uk-grid-small uk-child-width-1-2@s uk-child-width-1-4@m" uk-grid>
+    <!-- Ordner werden hier dynamisch eingefügt -->
+  </div>
+</div>
+
+<!-- Modal für Ordner erstellen -->
+<div id="create-folder-modal" uk-modal>
+  <div class="uk-modal-dialog uk-modal-body">
+    <h2 class="uk-modal-title">Neuen Ordner anlegen</h2>
+    <input class="uk-input uk-margin-bottom" type="text" id="folder-name" placeholder="Ordnername">
+    <button class="uk-button uk-button-primary uk-width-1-1" id="create-folder-btn">Erstellen</button>
+  </div>
+</div>
+
+<!-- Modal für Ordner bearbeiten -->
+<div id="edit-folder-modal" uk-modal>
+  <div class="uk-modal-dialog uk-modal-body">
+    <h2 class="uk-modal-title">Ordner umbenennen</h2>
+    <input class="uk-input uk-margin-bottom" type="text" id="edit-folder-name">
+    <button class="uk-button uk-button-primary uk-width-1-1" id="save-folder-btn">Speichern</button>
+  </div>
+</div>
+
+<script>
+  let folderList = document.getElementById("folder-list");
+  let currentEditFolder = null;
+
+  document.getElementById("create-folder-btn").addEventListener("click", function() {
+    let folderName = document.getElementById("folder-name").value.trim();
+    if (folderName === "") return;
+
+    let folder = document.createElement("div");
+    folder.innerHTML = `
+            <div class="uk-card uk-card-default uk-card-body uk-text-center">
+                <img src="folder-icon.png" class="folder-icon">
+                <h4>${folderName}</h4>
+                <button class="uk-button uk-button-primary uk-button-small edit-folder">Bearbeiten</button>
+                <button class="uk-button uk-button-danger uk-button-small delete-folder">Löschen</button>
+            </div>`;
+
+    folder.querySelector(".delete-folder").addEventListener("click", function() {
+      folder.remove();
+    });
+
+    folder.querySelector(".edit-folder").addEventListener("click", function() {
+      currentEditFolder = folder;
+      document.getElementById("edit-folder-name").value = folder.querySelector("h4").innerText;
+      UIkit.modal("#edit-folder-modal").show();
+    });
+
+    folder.addEventListener("click", function(event) {
+      if (!event.target.classList.contains("edit-folder") && !event.target.classList.contains("delete-folder")) {
+        window.location.href = "folder.html?name=" + encodeURIComponent(folderName);
+      }
+    });
+
+    folderList.appendChild(folder);
+    UIkit.modal("#create-folder-modal").hide();
+  });
+
+  document.getElementById("save-folder-btn").addEventListener("click", function() {
+    if (currentEditFolder) {
+      let newName = document.getElementById("edit-folder-name").value.trim();
+      if (newName !== "") {
+        currentEditFolder.querySelector("h4").innerText = newName;
+        UIkit.modal("#edit-folder-modal").hide();
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
