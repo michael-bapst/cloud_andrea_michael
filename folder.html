@@ -4,41 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ordner</title>
-
-  <!-- UIkit & Dropzone -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.16.0/dist/css/uikit.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/uikit@3.16.0/dist/js/uikit.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"></script>
-
+  <link rel="stylesheet" href="css/dropzone.css">
 </head>
 <body>
 
 <div class="uk-container uk-padding">
   <h2 class="uk-heading-line uk-text-center"><span id="folder-title">Ordner</span></h2>
-
-  <form action="/" class="dropzone" id="file-dropzone"></form>
-
-  <div class="uk-grid-small uk-child-width-1-3@m uk-margin-top" uk-grid id="file-list">
-    <!-- Bilder erscheinen hier -->
-  </div>
+  <form class="dropzone" id="file-dropzone"></form>
+  <div class="uk-grid-small uk-child-width-1-3@m uk-margin-top" uk-grid id="file-list"></div>
 </div>
 
-<script>
-  document.getElementById("folder-title").innerText = new URLSearchParams(window.location.search).get("name");
-
-  Dropzone.autoDiscover = false;
-  let myDropzone = new Dropzone("#file-dropzone", {
-    url: "/dummy-url",
-    autoProcessQueue: false
-  });
-
-  myDropzone.on("complete", function(file) {
-    let fileList = document.getElementById("file-list");
-    let fileItem = document.createElement("div");
-    fileItem.innerHTML = `<div class="uk-card uk-card-default uk-card-body">${file.name}</div>`;
-    fileList.appendChild(fileItem);
-  });
-</script>
-
+<script src="https://cdn.jsdelivr.net/npm/uikit@3.16.0/dist/js/uikit.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"></script>
+<script src="js/folder.js"></script>
 </body>
 </html>

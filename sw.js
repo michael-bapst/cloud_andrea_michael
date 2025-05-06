@@ -1,21 +1,28 @@
-self.addEventListener('install', function(event) {
+self.addEventListener('install', event => {
     event.waitUntil(
-        caches.open('cloud-cache').then(function(cache) {
+        caches.open('cloud-cache').then(cache => {
             return cache.addAll([
                 '/',
                 '/index.html',
-                '/js/app.js',
+                '/dashboard.html',
+                '/folder.html',
                 '/css/style.css',
-                'https://cdn.jsdelivr.net/npm/uikit@3.16.0/dist/css/uikit.min.css'
+                '/css/dropzone.css',
+                '/js/app.js',
+                '/js/auth.js',
+                '/js/drive.js',
+                '/js/dashboard.js',
+                '/js/folder.js',
+                'https://cdn.jsdelivr.net/npm/uikit@3.16.0/dist/css/uikit.min.css',
+                'https://cdn.jsdelivr.net/npm/uikit@3.16.0/dist/js/uikit.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js'
             ]);
         })
     );
 });
 
-self.addEventListener('fetch', function(event) {
+self.addEventListener('fetch', event => {
     event.respondWith(
-        caches.match(event.request).then(function(response) {
-            return response || fetch(event.request);
-        })
+        caches.match(event.request).then(resp => resp || fetch(event.request))
     );
 });
