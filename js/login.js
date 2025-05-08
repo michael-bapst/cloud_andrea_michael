@@ -12,10 +12,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const stayLoggedIn = document.getElementById('stayLoggedIn').checked;
 
         try {
-            const response = await fetch(`${API_BASE}/auth/login`, {
+            const response = await fetch(`${API_BASE}/login`, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ email, password })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user: email, pass: password }) // ✅ angepasst
             });
 
             if (!response.ok) throw new Error('Login fehlgeschlagen');
