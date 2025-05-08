@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Media Cloud</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/css/uikit.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit-icons.min.js"></script>
+</head>
+<body>
+<nav class="uk-navbar-container" uk-navbar>
+  <div class="uk-navbar-left">
+    <a class="uk-navbar-item uk-logo" href="#">Media Cloud</a>
+  </div>
+  <div class="uk-navbar-right">
+    <div class="uk-navbar-item">
+      <button class="uk-button uk-button-primary" uk-toggle="target: #uploadModal">
+        <span uk-icon="upload"></span> Upload
+      </button>
+    </div>
+    <div class="uk-navbar-item">
+      <button class="uk-button uk-button-default" id="logoutBtn">
+        <span uk-icon="sign-out"></span> Logout
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="uk-container uk-margin-small-top">
+  <ul class="uk-breadcrumb" id="breadcrumb">
+    <li><a href="#">Home</a></li>
+  </ul>
+</div>
+
+<div class="uk-container uk-margin-small-top">
+  <div class="uk-button-group">
+    <button class="uk-button uk-button-default" id="gridViewBtn"><span uk-icon="grid"></span></button>
+    <button class="uk-button uk-button-default" id="listViewBtn"><span uk-icon="list"></span></button>
+  </div>
+  <button class="uk-button uk-button-primary uk-margin-small-left" uk-toggle="target: #newFolderModal">
+    <span uk-icon="folder"></span> Neuer Ordner
+  </button>
+</div>
+
+<div class="uk-container uk-margin-medium-top">
+  <div id="contentGrid" class="uk-grid-small uk-child-width-1-2@s uk-child-width-1-3@m uk-child-width-1-4@l" uk-grid>
+    <!-- Dynamischer Inhalt -->
+  </div>
+</div>
+
+<!-- Upload Modal -->
+<div id="uploadModal" uk-modal>
+  <div class="uk-modal-dialog uk-modal-body">
+    <h2 class="uk-modal-title">Datei hochladen</h2>
+    <form class="uk-form-stacked">
+      <div class="uk-margin" uk-margin>
+        <div uk-form-custom="target: true">
+          <input type="file" multiple>
+          <input class="uk-input uk-form-width-medium" type="text" placeholder="Dateien auswählen" disabled>
+        </div>
+        <button class="uk-button uk-button-primary">Hochladen</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- New Folder Modal -->
+<div id="newFolderModal" uk-modal>
+  <div class="uk-modal-dialog uk-modal-body">
+    <h2 class="uk-modal-title">Neuer Ordner</h2>
+    <form class="uk-form-stacked" id="newFolderForm">
+      <div class="uk-margin">
+        <label class="uk-form-label">Ordnername</label>
+        <div class="uk-form-controls">
+          <input class="uk-input" type="text" required>
+        </div>
+      </div>
+      <div class="uk-margin">
+        <button class="uk-button uk-button-primary" type="submit">Erstellen</button>
+        <button class="uk-button uk-button-default uk-modal-close" type="button">Abbrechen</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+<script>
+  if (!localStorage.getItem('stayLoggedIn')) {
+    window.location.href = 'index.html';
+  }
+</script>
+</body>
+</html>
