@@ -1,4 +1,4 @@
-const API_BASE = 'https://cloud-backend.onrender.com';
+const API_BASE = 'https://cloud-backend-stxe.onrender.com';
 
 function saveToken(token, stayLoggedIn) {
     if (stayLoggedIn) localStorage.setItem('authToken', token);
