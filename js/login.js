@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(`${API_BASE}/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user: email, pass: password }) // ✅ angepasst
+                body: JSON.stringify({ user: email, pass: password })
             });
 
             if (!response.ok) throw new Error('Login fehlgeschlagen');
