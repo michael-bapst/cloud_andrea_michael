@@ -211,7 +211,7 @@ async function deleteFolder(name, event) {
 }
 
 // Formulare
-function handleNewFolder(e) {
+async function handleNewFolder(e) {
     e.preventDefault();
     const name = e.target.querySelector('input[type="text"]').value.trim();
     const current = currentPath[currentPath.length - 1];
@@ -221,11 +221,27 @@ function handleNewFolder(e) {
         return;
     }
 
-    folders[name] = { id: name.toLowerCase().replace(/\s+/g, '-'), name, parent: current, items: [], subfolders: [] };
-    folders[current].subfolders.push(name);
-    renderContent();
-    UIkit.modal('#newFolderModal').hide();
-    e.target.reset();
+    const token = getToken();
+    try {
+        const res = await fetch(`${API_BASE}/create-folder`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ path: name })
+        });
+
+        if (!res.ok) throw new Error('Ordner konnte nicht erstellt werden');
+
+        folders[name] = { id: name.toLowerCase().replace(/\s+/g, '-'), name, parent: current, items: [], subfolders: [] };
+        folders[current].subfolders.push(name);
+        renderContent();
+        UIkit.modal('#newFolderModal').hide();
+        e.target.reset();
+    } catch (err) {
+        UIkit.notification({ message: err.message, status: 'danger' });
+    }
 }
 
 async function handleUpload(e) {
