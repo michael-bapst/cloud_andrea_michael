@@ -286,8 +286,73 @@ function handleLogout() {
 }
 
 // Init
-document.addEventListener('DOMContentLoaded', () => {
-    renderContent();
+document.addEventListener('DOMContentLoaded', async () => {
+    const token = getToken();
+    if (!token) {
+        window.location.href = 'index.html';
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_BASE}/list-full`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!res.ok) throw new Error('Ordnerstruktur konnte nicht geladen werden');
+
+        const data = await res.json();
+
+        folders = {
+            'Home': {
+                id: 'home',
+                name: 'Home',
+                parent: null,
+                items: [],
+                subfolders: []
+            }
+        };
+
+        data.forEach(entry => {
+            const relPath = entry.filename.replace('/CloudApp/', '').replace(/\/$/, '');
+            if (!relPath) return;
+
+            const parts = relPath.split('/');
+            const name = parts[parts.length - 1];
+            const parent = parts.length > 1 ? parts[parts.length - 2] : 'Home';
+
+            if (entry.type === 'directory') {
+                folders[name] = {
+                    id: name.toLowerCase().replace(/\s+/g, '-'),
+                    name,
+                    parent,
+                    items: [],
+                    subfolders: []
+                };
+                if (!folders[parent]) {
+                    folders[parent] = { id: parent, name: parent, parent: 'Home', items: [], subfolders: [] };
+                }
+                folders[parent].subfolders.push(name);
+            } else {
+                if (!folders[parent]) {
+                    folders[parent] = { id: parent, name: parent, parent: 'Home', items: [], subfolders: [] };
+                }
+                folders[parent].items.push({
+                    id: Date.now() + Math.random(),
+                    name: name,
+                    type: 'file',
+                    size: formatFileSize(entry.size || 0),
+                    date: entry.lastmod ? entry.lastmod.split('T')[0] : '',
+                    thumbnail: 'https://picsum.photos/200/200?random=' + Math.floor(Math.random() * 1000)
+                });
+            }
+        });
+
+        renderContent();
+    } catch (err) {
+        console.error(err);
+        UIkit.notification({ message: err.message, status: 'danger' });
+    }
+
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/service-worker.js').catch(() => {});
     }
