@@ -2,7 +2,7 @@
   "name": "Media Cloud",
   "short_name": "Media Cloud",
   "description": "Lokale Verwaltung privater Medien",
-  "start_url": "./index.html",
+  "start_url": "/cloud_andrea_michael/",
   "display": "standalone",
   "background_color": "#f8f8f8",
   "theme_color": "#1e87f0",

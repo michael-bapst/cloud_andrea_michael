@@ -4,7 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Media Cloud Login</title>
+
+    <!-- PWA -->
     <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#1e87f0" />
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png" />
+
+    <!-- UIkit & Styles -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/css/uikit.min.css" />
     <link rel="stylesheet" href="css/style.css" />
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit.min.js"></script>
@@ -41,7 +47,7 @@
 </div>
 
 <script>
-    const API_BASE = 'https://cloud-backend.onrender.com';
+    const API_BASE = 'https://cloud-backend-stxe.onrender.com';
 
     function saveToken(token, stayLoggedIn) {
         if (stayLoggedIn) localStorage.setItem('authToken', token);
@@ -66,7 +72,7 @@
             const res = await fetch(`${API_BASE}/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({ user: email, pass: password }) // 👈 wichtig!
             });
 
             if (!res.ok) throw new Error('Login fehlgeschlagen');
@@ -82,6 +88,10 @@
             });
         }
     });
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js').catch(console.error);
+    }
 </script>
 </body>
 </html>
