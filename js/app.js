@@ -1,4 +1,3 @@
-const DEMO_CREDENTIALS = { email: 'test@example.com', password: 'test1234' };
 let currentPath = ['Home'];
 let viewMode = 'grid';
 
@@ -20,6 +19,12 @@ const gridViewBtn = document.getElementById('gridViewBtn');
 const listViewBtn = document.getElementById('listViewBtn');
 const newFolderForm = document.getElementById('newFolderForm');
 const uploadForm = document.querySelector('#uploadModal form');
+
+// API
+const API_BASE = 'https://cloud-backend-stxe.onrender.com';
+function getToken() {
+    return localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+}
 
 // Event-Handler
 logoutBtn.addEventListener('click', handleLogout);
@@ -108,6 +113,9 @@ function createFolderCard(folder) {
           <button class="uk-button uk-button-default uk-button-small" onclick="editFolder('${folder.name}', event)">
             <span uk-icon="pencil"></span><span class="uk-margin-small-left">Bearbeiten</span>
           </button>
+          <button class="uk-button uk-button-danger uk-button-small" onclick="deleteFolder('${folder.name}', event)">
+            <span uk-icon="trash"></span><span class="uk-margin-small-left">Löschen</span>
+          </button>
         </div>
       </div>
     </div>`;
@@ -123,10 +131,6 @@ function createMediaCard(item) {
       <div class="uk-card-body">
         <h3 class="uk-card-title">${item.name}</h3>
         <p>${item.size} • ${item.date}</p>
-      </div>
-      <div class="actions">
-        <button class="uk-button uk-button-small uk-button-default" uk-icon="pencil" onclick="editItem(${item.id}, event)"></button>
-        <button class="uk-button uk-button-small uk-button-danger" uk-icon="trash" onclick="deleteItem(${item.id}, event)"></button>
       </div>
     </div>`;
     return div;
@@ -150,31 +154,60 @@ function switchView(mode) {
     renderContent();
 }
 
-function editFolder(name, event) {
+async function editFolder(name, event) {
     event.stopPropagation();
-    UIkit.notification({ message: `Ordner "${name}" bearbeiten`, status: 'primary', timeout: 3000 });
+    const newName = prompt(`Ordner "${name}" umbenennen in:`, name);
+    if (!newName || newName === name) return;
+
+    const token = getToken();
+    try {
+        const res = await fetch(`${API_BASE}/rename`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ oldPath: name, newPath: newName })
+        });
+
+        if (!res.ok) throw new Error('Umbenennen fehlgeschlagen');
+
+        const folder = folders[name];
+        folders[newName] = { ...folder, name: newName };
+        delete folders[name];
+
+        const parent = folder.parent;
+        folders[parent].subfolders = folders[parent].subfolders.map(n => n === name ? newName : n);
+        renderContent();
+    } catch (err) {
+        UIkit.notification({ message: err.message, status: 'danger' });
+    }
 }
 
-function deleteFolder(name, event) {
+async function deleteFolder(name, event) {
     event.stopPropagation();
-    if (confirm(`Ordner "${name}" wirklich löschen?`)) {
+    if (!confirm(`Ordner "${name}" wirklich löschen?`)) return;
+
+    const token = getToken();
+    try {
+        const res = await fetch(`${API_BASE}/delete`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ path: name })
+        });
+
+        if (!res.ok) throw new Error('Löschen fehlgeschlagen');
+
         const parent = folders[name].parent;
         folders[parent].subfolders = folders[parent].subfolders.filter(n => n !== name);
         delete folders[name];
         renderContent();
+    } catch (err) {
+        UIkit.notification({ message: err.message, status: 'danger' });
     }
-}
-
-function editItem(id, event) {
-    event.stopPropagation();
-    UIkit.notification({ message: `Datei bearbeiten`, status: 'primary', timeout: 3000 });
-}
-
-function deleteItem(id, event) {
-    event.stopPropagation();
-    const current = currentPath[currentPath.length - 1];
-    folders[current].items = folders[current].items.filter(item => item.id !== id);
-    renderContent();
 }
 
 // Formulare
@@ -195,28 +228,34 @@ function handleNewFolder(e) {
     e.target.reset();
 }
 
-function handleUpload(e) {
+async function handleUpload(e) {
     e.preventDefault();
     const files = e.target.querySelector('input[type="file"]').files;
     if (!files.length) return;
 
-    const current = currentPath[currentPath.length - 1];
-    const newItems = Array.from(files).map((file, i) => ({
-        id: Date.now() + i,
-        name: file.name,
-        type: file.type.startsWith('image/') ? 'image' : 'document',
-        size: formatFileSize(file.size),
-        date: new Date().toISOString().split('T')[0],
-        thumbnail: file.type.startsWith('image/') ? URL.createObjectURL(file) : 'https://picsum.photos/200/200?random=' + (Date.now() + i)
-    }));
+    const token = getToken();
+    const formData = new FormData();
+    formData.append("file", files[0]);
 
-    folders[current].items.push(...newItems);
-    renderContent();
-    UIkit.modal('#uploadModal').hide();
-    e.target.reset();
+    try {
+        const res = await fetch(`${API_BASE}/upload`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            body: formData
+        });
+
+        if (!res.ok) throw new Error('Upload fehlgeschlagen');
+
+        UIkit.notification({ message: 'Datei erfolgreich hochgeladen', status: 'success' });
+        UIkit.modal('#uploadModal').hide();
+        e.target.reset();
+    } catch (err) {
+        UIkit.notification({ message: err.message, status: 'danger' });
+    }
 }
 
-// Hilfsfunktionen
 function formatFileSize(bytes) {
     if (bytes === 0) return '0 Bytes';
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
@@ -225,7 +264,8 @@ function formatFileSize(bytes) {
 }
 
 function handleLogout() {
-    localStorage.removeItem('stayLoggedIn');
+    localStorage.removeItem('authToken');
+    sessionStorage.removeItem('authToken');
     window.location.href = 'index.html';
 }
 
