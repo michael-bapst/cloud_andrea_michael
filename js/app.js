@@ -313,14 +313,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         data.forEach(entry => {
-            const relPath = entry.filename.replace('/CloudApp/', '').replace(/\/$/, '');
-            if (!relPath) return;
+            const key = entry.Key;
+            if (!key || key === '/') return;
 
-            const parts = relPath.split('/');
-            const name = parts[parts.length - 1];
-            const parent = parts.length > 1 ? parts[parts.length - 2] : 'Home';
+            const parts = key.split('/');
+            const name = parts[parts.length - 1] || parts[parts.length - 2];
+            const parent = parts.length > 2 ? parts[parts.length - 2] : 'Home';
 
-            if (entry.type === 'directory') {
+            if (key.endsWith('/')) {
                 folders[name] = {
                     id: name.toLowerCase().replace(/\s+/g, '-'),
                     name,
@@ -338,10 +338,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
                 folders[parent].items.push({
                     id: Date.now() + Math.random(),
-                    name: name,
+                    name,
                     type: 'file',
-                    size: formatFileSize(entry.size || 0),
-                    date: entry.lastmod ? entry.lastmod.split('T')[0] : '',
+                    size: formatFileSize(entry.Size || 0),
+                    date: entry.LastModified ? entry.LastModified.split('T')[0] : '',
                     thumbnail: 'https://picsum.photos/200/200?random=' + Math.floor(Math.random() * 1000)
                 });
             }
