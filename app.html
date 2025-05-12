@@ -92,6 +92,38 @@
   </div>
 </div>
 
+<!-- Rename Modal -->
+<div id="renameModal" uk-modal>
+  <div class="uk-modal-dialog uk-modal-body">
+    <h2 class="uk-modal-title">Ordner umbenennen</h2>
+    <form id="renameForm" class="uk-form-stacked">
+      <input type="hidden" id="renameOldName">
+      <div class="uk-margin">
+        <label class="uk-form-label">Neuer Name</label>
+        <div class="uk-form-controls">
+          <input class="uk-input" type="text" id="renameNewName" required>
+        </div>
+      </div>
+      <div class="uk-margin">
+        <button class="uk-button uk-button-primary" type="submit">Speichern</button>
+        <button class="uk-button uk-button-default uk-modal-close" type="button">Abbrechen</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div id="deleteModal" uk-modal>
+  <div class="uk-modal-dialog uk-modal-body">
+    <h2 class="uk-modal-title">Ordner wirklich löschen?</h2>
+    <p id="deleteConfirmText"></p>
+    <div class="uk-margin">
+      <button class="uk-button uk-button-primary" id="confirmDeleteBtn">Löschen</button>
+      <button class="uk-button uk-button-default uk-modal-close" type="button">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
 <script src="js/app.js"></script>
 <script>
   const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');

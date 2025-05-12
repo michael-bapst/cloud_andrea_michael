@@ -154,61 +154,79 @@ function switchView(mode) {
     renderContent();
 }
 
-async function editFolder(name, event) {
+let folderToDelete = null;
+
+function editFolder(name, event) {
     event.stopPropagation();
-    const newName = prompt(`Ordner "${name}" umbenennen in:`, name);
-    if (!newName || newName === name) return;
+    document.getElementById("renameOldName").value = name;
+    document.getElementById("renameNewName").value = name;
+    UIkit.modal("#renameModal").show();
+}
+
+document.getElementById("renameForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const oldName = document.getElementById("renameOldName").value;
+    const newName = document.getElementById("renameNewName").value.trim();
+    if (!newName || newName === oldName) return;
 
     const token = getToken();
     try {
         const res = await fetch(`${API_BASE}/rename`, {
-            method: 'PUT',
+            method: "PUT",
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({ oldPath: name, newPath: newName })
+            body: JSON.stringify({ oldPath: oldName, newPath: newName }),
         });
 
-        if (!res.ok) throw new Error('Umbenennen fehlgeschlagen');
+        if (!res.ok) throw new Error("Umbenennen fehlgeschlagen");
 
-        const folder = folders[name];
+        const folder = folders[oldName];
         folders[newName] = { ...folder, name: newName };
-        delete folders[name];
-
+        delete folders[oldName];
         const parent = folder.parent;
-        folders[parent].subfolders = folders[parent].subfolders.map(n => n === name ? newName : n);
+        folders[parent].subfolders = folders[parent].subfolders.map((n) =>
+            n === oldName ? newName : n
+        );
+        UIkit.modal("#renameModal").hide();
         renderContent();
     } catch (err) {
-        UIkit.notification({ message: err.message, status: 'danger' });
+        UIkit.notification({ message: err.message, status: "danger" });
     }
+});
+
+function deleteFolder(name, event) {
+    event.stopPropagation();
+    folderToDelete = name;
+    document.getElementById("deleteConfirmText").textContent = `Ordner "${name}" löschen?`;
+    UIkit.modal("#deleteModal").show();
 }
 
-async function deleteFolder(name, event) {
-    event.stopPropagation();
-    if (!confirm(`Ordner "${name}" wirklich löschen?`)) return;
-
+document.getElementById("confirmDeleteBtn").addEventListener("click", async () => {
+    const name = folderToDelete;
     const token = getToken();
     try {
         const res = await fetch(`${API_BASE}/delete`, {
-            method: 'DELETE',
+            method: "DELETE",
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({ path: name })
+            body: JSON.stringify({ path: name }),
         });
 
-        if (!res.ok) throw new Error('Löschen fehlgeschlagen');
+        if (!res.ok) throw new Error("Löschen fehlgeschlagen");
 
         const parent = folders[name].parent;
-        folders[parent].subfolders = folders[parent].subfolders.filter(n => n !== name);
+        folders[parent].subfolders = folders[parent].subfolders.filter((n) => n !== name);
         delete folders[name];
+        UIkit.modal("#deleteModal").hide();
         renderContent();
     } catch (err) {
-        UIkit.notification({ message: err.message, status: 'danger' });
+        UIkit.notification({ message: err.message, status: "danger" });
     }
-}
+});
 
 // Formulare
 async function handleNewFolder(e) {
