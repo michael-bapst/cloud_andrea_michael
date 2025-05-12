@@ -126,11 +126,14 @@ function createMediaCard(item) {
     const div = document.createElement('div');
     div.className = 'media-item';
     div.innerHTML = `
-    <div class="uk-card uk-card-default">
+    <div class="uk-card uk-card-default" onclick="previewMedia('${item.name}', '${item.thumbnail}')">
       <div class="uk-card-media-top"><img src="${item.thumbnail}" alt="${item.name}"></div>
       <div class="uk-card-body">
         <h3 class="uk-card-title">${item.name}</h3>
         <p>${item.size} • ${item.date}</p>
+        <button class="uk-button uk-button-default uk-button-small" onclick="event.stopPropagation(); downloadFile('${item.name}')">
+          <span uk-icon="download"></span> Herunterladen
+        </button>
       </div>
     </div>`;
     return div;
@@ -390,5 +393,45 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+    }
+
+    function previewMedia(name, url) {
+        const ext = name.split('.').pop().toLowerCase();
+        const isVideo = ['mp4', 'webm', 'ogg'].includes(ext);
+        const modal = document.getElementById('previewModal');
+        const container = modal.querySelector('.preview-container');
+        container.innerHTML = isVideo
+            ? `<video controls style="width:100%"><source src="${url}" type="video/${ext}"></video>`
+            : `<img src="${url}" alt="${name}" style="width:100%">`;
+        UIkit.modal(modal).show();
+    }
+
+    contentGrid.addEventListener('dragover', e => {
+        e.preventDefault();
+        contentGrid.classList.add('uk-background-muted');
+    });
+    contentGrid.addEventListener('dragleave', () => {
+        contentGrid.classList.remove('uk-background-muted');
+    });
+    contentGrid.addEventListener('drop', e => {
+        e.preventDefault();
+        contentGrid.classList.remove('uk-background-muted');
+        const files = e.dataTransfer.files;
+        if (files.length) {
+            const form = new FormData();
+            form.append('file', files[0]); // aktuell nur 1 Datei, willst du mehrere?
+            form.append('folder', currentPath.join('/') === 'Home' ? '' : currentPath.join('/'));
+            fetch(`${API_BASE}/upload`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${getToken()}` },
+                body: form
+            }).then(() => renderContent());
+        }
+    });
+
+    function downloadFile(name) {
+        const encodedName = encodeURIComponent(name);
+        const url = `${API_BASE}/file/${encodedName}`;
+        window.open(url, '_blank');
     }
 });

@@ -124,6 +124,17 @@
   </div>
 </div>
 
+<!-- Preview Modal -->
+<div id="previewModal" uk-modal>
+  <div class="uk-modal-dialog uk-modal-body">
+    <h2 class="uk-modal-title">Vorschau</h2>
+    <div class="preview-container"></div>
+    <div class="uk-margin-top uk-text-right">
+      <button class="uk-button uk-button-default uk-modal-close" type="button">Schließen</button>
+    </div>
+  </div>
+</div>
+
 <script src="js/app.js"></script>
 <script>
   const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
