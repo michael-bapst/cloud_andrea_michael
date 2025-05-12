@@ -18,7 +18,7 @@ const breadcrumb = document.getElementById('breadcrumb');
 const gridViewBtn = document.getElementById('gridViewBtn');
 const listViewBtn = document.getElementById('listViewBtn');
 const newFolderForm = document.getElementById('newFolderForm');
-const uploadForm = document.getElementById('uploadForm'); // Upload-Formular korrekt holen
+const uploadForm = document.getElementById('uploadForm');
 
 // Event-Handler
 logoutBtn.addEventListener('click', handleLogout);
@@ -26,7 +26,6 @@ gridViewBtn.addEventListener('click', () => switchView('grid'));
 listViewBtn.addEventListener('click', () => switchView('list'));
 newFolderForm.addEventListener('submit', handleNewFolder);
 
-// 🛠 Sicherer Upload-Fix:
 if (uploadForm) uploadForm.addEventListener('submit', handleUpload);
 
 breadcrumb.addEventListener('click', (e) => {
@@ -93,13 +92,13 @@ function createFolderCard(folder) {
     div.innerHTML = `
     <div class="uk-card uk-card-default uk-margin-small uk-padding-remove" style="aspect-ratio: 1 / 1; display: flex; flex-direction: column;">
       <div class="folder-accent-bar" style="background-color: ${color}; height: 32px; border-radius: 4px 4px 0 0;"></div>
-      <div class="uk-card-body uk-flex-1 uk-flex uk-flex-column uk-padding-small">
+      <div class="uk-card-body uk-padding-small uk-flex-1 uk-flex uk-flex-column">
         <div class="uk-text-center">
           <div class="uk-margin-small" style="height:48px;"><span uk-icon="icon: folder; ratio: 2.2"></span></div>
           <div class="uk-heading-small uk-margin-remove">${folder.name}</div>
           <div class="uk-text-meta">${date}</div>
         </div>
-        <div class="folder-buttons uk-margin-small-top uk-flex uk-flex-column uk-flex-center uk-flex-middle">
+        <div class="uk-margin-small-top uk-flex uk-flex-column uk-flex-center uk-flex-middle folder-buttons" style="margin-top: auto;">
           <button class="uk-button uk-button-default uk-button-small uk-margin-small-bottom" onclick="navigateToFolder('${folder.name}')">
             <span uk-icon="folder"></span><span class="uk-margin-small-left">Öffnen</span>
           </button>

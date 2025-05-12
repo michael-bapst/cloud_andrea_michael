@@ -17,23 +17,21 @@
 </head>
 
 <body>
-<nav class="uk-navbar-container" uk-navbar>
-  <div class="uk-navbar-left uk-width-expand uk-flex uk-flex-center">
-    <span class="uk-navbar-item uk-text-bold uk-text-center uk-text-large">Andrea Lio Michael</span>
-  </div>
-  <div class="uk-navbar-right">
-    <div class="uk-navbar-item">
+<div class="uk-container uk-margin-small-top uk-text-center">
+  <h1 class="uk-text-bold uk-text-large">Andrea Lio Michael</h1>
+  <div class="uk-margin-small-top uk-flex uk-flex-center uk-flex-middle uk-child-width-auto" uk-grid>
+    <div>
       <button class="uk-button uk-button-primary" uk-toggle="target: #uploadModal">
         <span uk-icon="upload"></span> Upload
       </button>
     </div>
-    <div class="uk-navbar-item">
+    <div>
       <button class="uk-button uk-button-default" id="logoutBtn">
         <span uk-icon="sign-out"></span> Logout
       </button>
     </div>
   </div>
-</nav>
+</div>
 
 <div class="uk-container uk-margin-small-top">
   <ul class="uk-breadcrumb" id="breadcrumb">
@@ -63,8 +61,8 @@
     <form id="uploadForm" class="uk-form-stacked">
       <div class="uk-margin" uk-margin>
         <div uk-form-custom="target: true">
-          <input type="file" id="uploadInput" name="file" multiple required />
-          <input class="uk-input uk-form-width-medium" type="text" placeholder="Dateien auswählen" disabled />
+          <input type="file" multiple required>
+          <input class="uk-input uk-form-width-medium" type="text" placeholder="Dateien auswählen" disabled>
         </div>
         <button class="uk-button uk-button-primary" type="submit">Hochladen</button>
       </div>
