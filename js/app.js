@@ -263,6 +263,10 @@ async function handleUpload(e) {
     const formData = new FormData();
     formData.append("file", files[0]);
 
+    const current = currentPath.join('/');
+    const folderPath = current === 'Home' ? '' : current;
+    formData.append("folder", folderPath);
+
     try {
         const res = await fetch(`${API_BASE}/upload`, {
             method: 'POST',
@@ -277,6 +281,9 @@ async function handleUpload(e) {
         UIkit.notification({ message: 'Datei erfolgreich hochgeladen', status: 'success' });
         UIkit.modal('#uploadModal').hide();
         e.target.reset();
+
+        renderContent();
+
     } catch (err) {
         UIkit.notification({ message: err.message, status: 'danger' });
     }
