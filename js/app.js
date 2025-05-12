@@ -95,7 +95,7 @@ function renderBackButton() {
 function createFolderCard(folder) {
     const div = document.createElement('div');
     div.className = 'media-item folder-item uk-width-1-1';
-    const color = getPastelColor(folder.name);
+    const color = 'var(--primary-color)';
     const date = new Date().toLocaleDateString('de-DE');
     div.innerHTML = `
     <div class="uk-card uk-card-default uk-margin-small uk-padding-remove">
@@ -113,9 +113,10 @@ function createFolderCard(folder) {
           <button class="uk-button uk-button-default uk-button-small" onclick="editFolder('${folder.name}', event)">
             <span uk-icon="pencil"></span><span class="uk-margin-small-left">Bearbeiten</span>
           </button>
-          <button class="uk-button uk-button-danger uk-button-small" onclick="deleteFolder('${folder.name}', event)">
+          <button class="uk-button uk-button-default uk-button-small" onclick="deleteFolder('${folder.name}', event)">
             <span uk-icon="trash"></span><span class="uk-margin-small-left">Löschen</span>
           </button>
+          
         </div>
       </div>
     </div>`;

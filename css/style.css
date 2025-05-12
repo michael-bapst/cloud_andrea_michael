@@ -169,7 +169,6 @@ body {
     }
 }
 
-/* Touch (z. B. Mobile) */
 @media (hover: none) {
     .media-item .actions {
         opacity: 1;
@@ -178,5 +177,28 @@ body {
     .uk-button,
     .uk-form-controls input {
         min-height: 44px;
+    }
+}
+
+@media (max-width: 640px) {
+    #contentGrid.uk-grid-small {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .media-item.folder-item .uk-card {
+        aspect-ratio: 1 / 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .uk-button {
+        padding: 0 15px;
+    }
+
+    .uk-modal-dialog {
+        margin: 10px;
     }
 }
