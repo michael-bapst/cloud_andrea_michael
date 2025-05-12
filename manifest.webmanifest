@@ -2,7 +2,7 @@
   "name": "Andrea Lio Michael",
   "short_name": "Andrea Lio Michael",
   "description": "Lokale Verwaltung privater Medien",
-  "start_url": "/cloud_andrea_michael/",
+  "start_url": "/index.html"
   "display": "standalone",
   "background_color": "#f8f8f8",
   "theme_color": "#1e87f0",
