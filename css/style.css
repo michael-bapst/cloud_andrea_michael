@@ -9,7 +9,6 @@ body {
     background-color: var(--background-color);
 }
 
-/* ✨ Allgemeines Kartenverhalten */
 .uk-card {
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
     height: 100%;
@@ -20,7 +19,6 @@ body {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* 📦 Standard Media-Karten */
 .media-item {
     position: relative;
     margin-bottom: 20px;
@@ -40,20 +38,13 @@ body {
     max-width: 100%;
     object-fit: contain;
 }
-
-/* 🎯 Ordnerkarten */
 .folder-card {
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 3 / 2;
+    min-height: 220px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     height: 100%;
-}
-
-.folder-accent-bar {
-    background-color: var(--primary-color);
-    height: 32px;
-    border-radius: 4px 4px 0 0;
 }
 
 .folder-content {
@@ -72,7 +63,12 @@ body {
     align-items: center;
 }
 
-/* 📋 Listenansicht */
+.folder-accent-bar {
+    background-color: var(--primary-color);
+    height: 32px;
+    border-radius: 4px 4px 0 0;
+}
+
 .list-view .uk-card {
     display: flex;
     flex-direction: row;
@@ -91,7 +87,6 @@ body {
     padding: 0 15px;
 }
 
-/* 🔘 Buttons */
 .uk-button {
     border-radius: 4px;
     padding: 0 20px;
@@ -112,7 +107,6 @@ body {
     background-color: var(--primary-color);
 }
 
-/* 🧹 Modale Dialoge */
 .uk-modal-dialog {
     border-radius: 8px;
     max-width: 500px;
@@ -123,7 +117,6 @@ body {
     padding: 30px;
 }
 
-/* 📚 Navigationsleiste */
 .uk-breadcrumb {
     background: #fff;
     padding: 15px;
@@ -142,7 +135,6 @@ body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* 📱 Mobile-Optimierung */
 @media (max-width: 640px) {
     .uk-container {
         padding-left: 15px;
