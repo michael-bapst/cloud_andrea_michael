@@ -204,4 +204,14 @@ body {
     .folder-buttons {
         margin-top: auto;
     }
+    .media-item.folder-item .uk-card {
+        aspect-ratio: 1 / 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .folder-buttons {
+        margin-top: auto;
+    }
 }
