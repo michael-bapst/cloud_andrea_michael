@@ -91,19 +91,19 @@ function createFolderCard(folder) {
     const date = new Date().toLocaleDateString('de-DE');
 
     div.innerHTML = `
-    <div class="uk-card uk-card-default uk-margin-small uk-padding-remove" style="aspect-ratio: 1 / 1; display: flex; flex-direction: column;">
-      <div class="folder-accent-bar" style="background-color: ${color}; height: 32px; border-radius: 4px 4px 0 0;"></div>
-      <div class="uk-card-body uk-flex uk-flex-column uk-flex-between uk-padding-small" style="flex: 1 1 auto;">
-        <div class="uk-text-center">
-          <div class="uk-margin-small" style="height:48px;"><span uk-icon="icon: folder; ratio: 2.2"></span></div>
+    <div class="uk-card uk-card-default uk-margin-small uk-padding-remove folder-card">
+      <div class="folder-accent-bar"></div>
+      <div class="uk-card-body uk-padding-small">
+        <div class="folder-content">
+          <div class="uk-margin-small"><span uk-icon="icon: folder; ratio: 2.2"></span></div>
           <div class="uk-heading-small uk-margin-remove">${folder.name}</div>
           <div class="uk-text-meta">${date}</div>
         </div>
-        <div class="folder-buttons uk-margin-top-auto uk-flex uk-flex-column uk-flex-center uk-flex-middle">
-          <button class="uk-button uk-button-default uk-button-small uk-margin-small-bottom" onclick="navigateToFolder('${folder.name}')">
+        <div class="folder-buttons">
+          <button class="uk-button uk-button-default uk-button-small" onclick="navigateToFolder('${folder.name}')">
             <span uk-icon="folder"></span><span class="uk-margin-small-left">Öffnen</span>
           </button>
-          <button class="uk-button uk-button-default uk-button-small uk-margin-small-bottom" onclick="editFolder('${folder.name}', event)">
+          <button class="uk-button uk-button-default uk-button-small" onclick="editFolder('${folder.name}', event)">
             <span uk-icon="pencil"></span><span class="uk-margin-small-left">Bearbeiten</span>
           </button>
           <button class="uk-button uk-button-default uk-button-small" onclick="deleteFolder('${folder.name}', event)">
@@ -271,8 +271,7 @@ async function handleNewFolder(e) {
 async function handleUpload(e) {
     e.preventDefault();
 
-    const fileInput = e.target.querySelector('input[type="file"]');
-    const files = fileInput.files;
+    const files = uploadForm.querySelector('input[name="file"]').files;
     if (!files.length) return;
 
     const formData = new FormData();
@@ -299,7 +298,7 @@ async function handleUpload(e) {
         renderContent();
 
     } catch (err) {
-        console.error(err);
+        console.error("UPLOAD-FEHLER:", err);
         UIkit.notification({ message: err.message, status: 'danger' });
     }
 }
