@@ -86,21 +86,22 @@ function renderBackButton() {
 // Karten
 function createFolderCard(folder) {
     const div = document.createElement('div');
-    div.className = 'media-item folder-item uk-width-1-1';
+    div.className = 'media-item folder-item';
+
     const color = 'var(--primary-color)';
     const date = new Date().toLocaleDateString('de-DE');
 
     div.innerHTML = `
-    <div class="uk-card uk-card-default uk-margin-small uk-padding-remove" 
-         style="aspect-ratio: 1 / 1; display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+    <div class="uk-card uk-card-default uk-padding-remove" 
+         style="aspect-ratio: 1/1; display: flex; flex-direction: column; justify-content: space-between;">
       <div class="folder-accent-bar" style="background-color: ${color}; height: 32px; border-radius: 4px 4px 0 0;"></div>
-      <div class="uk-card-body uk-flex uk-flex-column uk-padding-small" style="flex: 1;">
-        <div class="uk-text-center">
+      <div class="uk-card-body uk-flex uk-flex-column uk-flex-between uk-padding-small" style="flex: 1;">
+        <div class="uk-text-center uk-flex-1">
           <div class="uk-margin-small" style="height:48px;"><span uk-icon="icon: folder; ratio: 2.2"></span></div>
           <div class="uk-heading-small uk-margin-remove">${folder.name}</div>
           <div class="uk-text-meta">${date}</div>
         </div>
-        <div class="folder-buttons uk-flex uk-flex-column uk-flex-center uk-flex-middle uk-margin-top-auto">
+        <div class="uk-margin-small-top uk-flex uk-flex-column uk-flex-center uk-flex-middle uk-flex-wrap" style="margin-top: auto;">
           <button class="uk-button uk-button-default uk-button-small uk-margin-small-bottom" onclick="navigateToFolder('${folder.name}')">
             <span uk-icon="folder"></span><span class="uk-margin-small-left">Öffnen</span>
           </button>
@@ -271,22 +272,23 @@ async function handleNewFolder(e) {
 
 async function handleUpload(e) {
     e.preventDefault();
-    const files = e.target.querySelector('input[type="file"]').files;
+
+    const fileInput = e.target.querySelector('input[type="file"]');
+    const files = fileInput.files;
     if (!files.length) return;
 
-    const token = getToken();
     const formData = new FormData();
     formData.append("file", files[0]);
 
-    const current = currentPath.join('/');
-    const folderPath = current === 'Home' ? '' : current;
+    const folderPath = currentPath.join('/') === 'Home' ? '' : currentPath.join('/');
     formData.append("folder", folderPath);
 
+    const token = getToken();
     try {
         const res = await fetch(`${API_BASE}/upload`, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             },
             body: formData
         });
@@ -296,10 +298,10 @@ async function handleUpload(e) {
         UIkit.notification({ message: 'Datei erfolgreich hochgeladen', status: 'success' });
         UIkit.modal('#uploadModal').hide();
         e.target.reset();
-
         renderContent();
 
     } catch (err) {
+        console.error(err);
         UIkit.notification({ message: err.message, status: 'danger' });
     }
 }

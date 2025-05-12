@@ -55,15 +55,18 @@
 </div>
 
 <!-- Upload Modal -->
+<!-- Upload Modal -->
 <div id="uploadModal" uk-modal>
   <div class="uk-modal-dialog uk-modal-body">
     <h2 class="uk-modal-title">Datei hochladen</h2>
-    <form id="uploadForm" class="uk-form-stacked">
-      <div class="uk-margin" uk-margin>
+    <form id="uploadForm" class="uk-form-stacked" enctype="multipart/form-data">
+      <div class="uk-margin">
         <div uk-form-custom="target: true">
-          <input type="file" multiple required />
-          <input class="uk-input uk-form-width-medium" type="text" placeholder="Dateien auswählen" disabled />
+          <input type="file" name="file" required />
+          <input class="uk-input uk-form-width-medium" type="text" placeholder="Datei auswählen" disabled />
         </div>
+      </div>
+      <div class="uk-margin">
         <button class="uk-button uk-button-primary" type="submit">Hochladen</button>
       </div>
     </form>
