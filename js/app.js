@@ -87,19 +87,20 @@ function renderBackButton() {
 function createFolderCard(folder) {
     const div = document.createElement('div');
     div.className = 'media-item folder-item uk-width-1-1';
+
     const color = 'var(--primary-color)';
     const date = new Date().toLocaleDateString('de-DE');
 
     div.innerHTML = `
-    <div class="uk-card uk-card-default uk-margin-small uk-padding-remove folder-card">
-      <div class="folder-accent-bar"></div>
-      <div class="uk-card-body uk-padding-small">
-        <div class="folder-content">
-          <div class="uk-margin-small"><span uk-icon="icon: folder; ratio: 2.2"></span></div>
+    <div class="uk-card uk-card-default uk-margin-small uk-padding-remove folder-card" style="aspect-ratio: 1 / 1;">
+      <div class="folder-accent-bar" style="background-color: ${color}; height: 32px; border-radius: 4px 4px 0 0;"></div>
+      <div class="uk-card-body uk-padding-small uk-flex uk-flex-column uk-flex-between" style="flex: 1;">
+        <div class="folder-content uk-text-center">
+          <div class="uk-margin-small" style="height:48px;"><span uk-icon="icon: folder; ratio: 2.2"></span></div>
           <div class="uk-heading-small uk-margin-remove">${folder.name}</div>
           <div class="uk-text-meta">${date}</div>
         </div>
-        <div class="folder-buttons">
+        <div class="folder-buttons uk-flex uk-flex-column uk-flex-center uk-flex-middle" style="margin-top:auto; gap:6px;">
           <button class="uk-button uk-button-default uk-button-small" onclick="navigateToFolder('${folder.name}')">
             <span uk-icon="folder"></span><span class="uk-margin-small-left">Öffnen</span>
           </button>
@@ -272,7 +273,10 @@ async function handleUpload(e) {
     e.preventDefault();
 
     const files = uploadForm.querySelector('input[name="file"]').files;
-    if (!files.length) return;
+    if (!files.length) {
+        UIkit.notification({ message: 'Keine Datei gewählt', status: 'danger' });
+        return;
+    }
 
     const formData = new FormData();
     formData.append("file", files[0]);
@@ -290,7 +294,10 @@ async function handleUpload(e) {
             body: formData
         });
 
-        if (!res.ok) throw new Error('Upload fehlgeschlagen');
+        if (!res.ok) {
+            const error = await res.json();
+            throw new Error("UPLOAD-FEHLER: " + (error.detail || "Unbekannt"));
+        }
 
         UIkit.notification({ message: 'Datei erfolgreich hochgeladen', status: 'success' });
         UIkit.modal('#uploadModal').hide();

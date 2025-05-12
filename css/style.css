@@ -9,7 +9,7 @@ body {
     background-color: var(--background-color);
 }
 
-/* Standardkarten */
+/* ✨ Allgemeines Kartenverhalten */
 .uk-card {
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
     height: 100%;
@@ -17,9 +17,10 @@ body {
 
 .uk-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
+/* 📦 Standard Media-Karten */
 .media-item {
     position: relative;
     margin-bottom: 20px;
@@ -40,51 +41,38 @@ body {
     object-fit: contain;
 }
 
-.uk-card-body {
-    padding: 15px;
+/* 🎯 Ordnerkarten */
+.folder-card {
+    aspect-ratio: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
 }
 
-.uk-button {
-    border-radius: 4px;
-    padding: 0 20px;
-    height: 40px;
-    display: inline-flex;
-    align-items: center;
+.folder-accent-bar {
+    background-color: var(--primary-color);
+    height: 32px;
+    border-radius: 4px 4px 0 0;
+}
+
+.folder-content {
+    text-align: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
     justify-content: center;
-    gap: 5px;
 }
 
-.uk-button-primary {
-    background-color: var(--primary-color);
+.folder-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: auto;
+    align-items: center;
 }
 
-.uk-button-small {
-    height: 30px;
-    padding: 0 10px;
-}
-
-/* Delete-Button angepasst */
-.uk-button-delete {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    color: #333;
-}
-
-.uk-button-delete:hover {
-    background-color: #f0f0f0;
-}
-
-/* Ordneranzeige */
-.folder-item .folder-accent-bar {
-    background-color: var(--primary-color);
-}
-
-.folder-item .uk-card-media-top [uk-icon] {
-    width: 64px;
-    height: 64px;
-}
-
-/* Listenansicht */
+/* 📋 Listenansicht */
 .list-view .uk-card {
     display: flex;
     flex-direction: row;
@@ -103,25 +91,44 @@ body {
     padding: 0 15px;
 }
 
+/* 🔘 Buttons */
+.uk-button {
+    border-radius: 4px;
+    padding: 0 20px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.uk-button-small {
+    font-size: 13px;
+    height: 30px;
+    padding: 2px 10px;
+}
+
+.uk-button-primary {
+    background-color: var(--primary-color);
+}
+
+/* 🧹 Modale Dialoge */
 .uk-modal-dialog {
     border-radius: 8px;
     max-width: 500px;
+    margin: 10px;
 }
 
 .uk-modal-body {
     padding: 30px;
 }
 
-.uk-navbar-container {
-    background: #fff !important;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
+/* 📚 Navigationsleiste */
 .uk-breadcrumb {
     background: #fff;
     padding: 15px;
     border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
 }
 
@@ -130,19 +137,16 @@ body {
     align-items: center;
 }
 
-.uk-form-stacked .uk-form-label {
-    font-weight: 500;
+.uk-navbar-container {
+    background: #fff !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Mobile Optimierung */
+/* 📱 Mobile-Optimierung */
 @media (max-width: 640px) {
     .uk-container {
         padding-left: 15px;
         padding-right: 15px;
-    }
-
-    .media-item .uk-card-media-top {
-        height: 150px;
     }
 
     #contentGrid.uk-grid-small {
@@ -151,12 +155,8 @@ body {
         gap: 12px;
     }
 
-    .media-item.folder-item {
-        margin-bottom: 0;
-    }
-
-    .uk-button {
-        padding: 0 15px;
+    .media-item .uk-card-media-top {
+        height: 150px;
     }
 
     .list-view .uk-card-media-top {
@@ -164,90 +164,11 @@ body {
         height: 80px;
     }
 
-    .uk-modal-dialog {
-        margin: 10px;
-    }
-}
-
-@media (hover: none) {
-    .media-item .actions {
-        opacity: 1;
-    }
-
-    .uk-button,
-    .uk-form-controls input {
-        min-height: 44px;
-    }
-}
-
-@media (max-width: 640px) {
-    #contentGrid.uk-grid-small {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-    }
-
-    .media-item.folder-item .uk-card {
-        aspect-ratio: 1 / 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
-
     .uk-button {
         padding: 0 15px;
     }
 
-    .uk-modal-dialog {
-        margin: 10px;
-    }
-    .folder-buttons {
-        margin-top: auto;
-    }
-    .media-item.folder-item .uk-card {
-        aspect-ratio: 1 / 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
-
-    .folder-buttons {
-        margin-top: auto;
-    }
-    .uk-button-small {
-        font-size: 13px;
-        padding: 2px 10px;
-    }
-    .folder-card {
-        aspect-ratio: 1 / 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        height: 100%;
-    }
-
-    .folder-accent-bar {
-        background-color: var(--primary-color);
-        height: 32px;
-        border-radius: 4px 4px 0 0;
-    }
-
-    .uk-card-body {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
-
-    .folder-content {
-        text-align: center;
-    }
-
-    .folder-buttons {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        margin-top: auto;
-        align-items: center;
+    .uk-form-controls input {
+        min-height: 44px;
     }
 }
