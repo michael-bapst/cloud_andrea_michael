@@ -44,7 +44,6 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    height: 100%;
 }
 
 .folder-content {
@@ -162,5 +161,11 @@ body {
 
     .uk-form-controls input {
         min-height: 44px;
+    }
+    @media (max-width: 640px) {
+        .folder-card {
+            aspect-ratio: unset;
+            height: auto;
+        }
     }
 }
