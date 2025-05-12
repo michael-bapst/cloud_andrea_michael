@@ -201,4 +201,7 @@ body {
     .uk-modal-dialog {
         margin: 10px;
     }
+    .folder-buttons {
+        margin-top: auto;
+    }
 }
