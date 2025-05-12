@@ -18,7 +18,13 @@ const breadcrumb = document.getElementById('breadcrumb');
 const gridViewBtn = document.getElementById('gridViewBtn');
 const listViewBtn = document.getElementById('listViewBtn');
 const newFolderForm = document.getElementById('newFolderForm');
-const uploadForm = document.getElementById('uploadForm');
+const uploadForm = document.getElementById('uploadForm'); // Upload-Formular sicher holen
+
+// API (gehört gleich danach)
+const API_BASE = 'https://cloud-backend-stxe.onrender.com';
+function getToken() {
+    return localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+}
 
 // Event-Handler
 logoutBtn.addEventListener('click', handleLogout);
@@ -35,12 +41,6 @@ breadcrumb.addEventListener('click', (e) => {
         navigateToPath(currentPath.slice(0, index + 1));
     }
 });
-
-// API
-const API_BASE = 'https://cloud-backend-stxe.onrender.com';
-function getToken() {
-    return localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
-}
 
 // Darstellung
 function renderContent() {
@@ -90,15 +90,15 @@ function createFolderCard(folder) {
     const color = 'var(--primary-color)';
     const date = new Date().toLocaleDateString('de-DE');
     div.innerHTML = `
-    <div class="uk-card uk-card-default uk-margin-small uk-padding-remove" style="aspect-ratio: 1 / 1; display: flex; flex-direction: column;">
+    <div class="uk-card uk-card-default uk-margin-small uk-padding-remove" style="aspect-ratio: 1 / 1; display: flex; flex-direction: column; justify-content: space-between;">
       <div class="folder-accent-bar" style="background-color: ${color}; height: 32px; border-radius: 4px 4px 0 0;"></div>
-      <div class="uk-card-body uk-padding-small uk-flex-1 uk-flex uk-flex-column">
+      <div class="uk-card-body uk-padding-small uk-flex uk-flex-column uk-flex-between" style="flex: 1;">
         <div class="uk-text-center">
           <div class="uk-margin-small" style="height:48px;"><span uk-icon="icon: folder; ratio: 2.2"></span></div>
           <div class="uk-heading-small uk-margin-remove">${folder.name}</div>
           <div class="uk-text-meta">${date}</div>
         </div>
-        <div class="uk-margin-small-top uk-flex uk-flex-column uk-flex-center uk-flex-middle folder-buttons" style="margin-top: auto;">
+        <div class="uk-margin-small-top uk-flex uk-flex-column uk-flex-center uk-flex-middle uk-flex-wrap">
           <button class="uk-button uk-button-default uk-button-small uk-margin-small-bottom" onclick="navigateToFolder('${folder.name}')">
             <span uk-icon="folder"></span><span class="uk-margin-small-left">Öffnen</span>
           </button>
