@@ -116,7 +116,6 @@ function createFolderCard(folder) {
           <button class="uk-button uk-button-default uk-button-small" onclick="deleteFolder('${folder.name}', event)">
             <span uk-icon="trash"></span><span class="uk-margin-small-left">Löschen</span>
           </button>
-          
         </div>
       </div>
     </div>`;
