@@ -213,13 +213,16 @@ async function deleteFolder(name, event) {
 // Formulare
 async function handleNewFolder(e) {
     e.preventDefault();
-    const name = e.target.querySelector('input[type="text"]').value.trim();
-    const current = currentPath[currentPath.length - 1];
+    const input = e.target.querySelector('input[type="text"]');
+    const name = input.value.trim();
 
-    if (!name || folders[current].subfolders.includes(name)) {
-        UIkit.notification({ message: 'Ungültiger oder doppelter Ordnername', status: 'danger', timeout: 3000 });
+    if (!name) {
+        UIkit.notification({ message: 'Ordnername fehlt', status: 'danger', timeout: 3000 });
         return;
     }
+
+    const current = currentPath.join('/'); // z. B. "Home/fotos"
+    const fullPath = current === 'Home' ? name : `${current}/${name}`;
 
     const token = getToken();
     try {
@@ -229,16 +232,23 @@ async function handleNewFolder(e) {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({ path: name })
+            body: JSON.stringify({ path: fullPath })
         });
 
         if (!res.ok) throw new Error('Ordner konnte nicht erstellt werden');
 
-        folders[name] = { id: name.toLowerCase().replace(/\s+/g, '-'), name, parent: current, items: [], subfolders: [] };
-        folders[current].subfolders.push(name);
+        folders[name] = {
+            id: name.toLowerCase().replace(/\s+/g, '-'),
+            name,
+            parent: currentPath[currentPath.length - 1],
+            items: [],
+            subfolders: []
+        };
+
+        folders[currentPath[currentPath.length - 1]].subfolders.push(name);
         renderContent();
         UIkit.modal('#newFolderModal').hide();
-        e.target.reset();
+        input.value = '';
     } catch (err) {
         UIkit.notification({ message: err.message, status: 'danger' });
     }
