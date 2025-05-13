@@ -190,4 +190,22 @@ body {
         aspect-ratio: unset;
         height: auto;
     }
+    @media (max-width: 640px) {
+        .folder-card .uk-heading-small {
+            font-size: 16px;
+        }
+
+        .folder-card .uk-text-meta {
+            font-size: 12px;
+        }
+
+        .media-item img {
+            object-fit: cover;
+            max-height: 140px;
+        }
+
+        .folder-card {
+            min-height: 180px;
+        }
+    }
 }

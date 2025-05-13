@@ -118,19 +118,31 @@ async function confirmDelete() {
     const name = folderToDelete;
     const token = getToken();
     const res = await fetch(`${API_BASE}/delete`, {
-        method:'DELETE',
-        headers:{
-            'Content-Type':'application/json',
-            Authorization:`Bearer ${token}`
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
         },
         body: JSON.stringify({ path: name })
     });
-    if (!res.ok) throw new Error('Ordner-Löschen fehlgeschlagen');
-    // UI updaten
-    const parent = folders[name].parent;
-    folders[parent].subfolders = folders[parent].subfolders.filter(n=>n!==name);
+
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        UIkit.notification({
+            message: err?.error || 'Löschen fehlgeschlagen',
+            status: 'danger'
+        });
+        return;
+    }
+
+    const parent = folders[name]?.parent;
+    if (parent && folders[parent]) {
+        folders[parent].subfolders = folders[parent].subfolders.filter(n => n !== name);
+    }
+
     delete folders[name];
     UIkit.modal('#deleteModal').hide();
+    UIkit.notification({ message: 'Ordner gelöscht', status: 'success' });
     renderContent();
 }
 
@@ -237,74 +249,75 @@ document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
     const token = getToken();
-    if (!token) return window.location.href='index.html';
+    if (!token) return window.location.href = 'index.html';
 
-    // Struktur vom Backend holen
     const res = await fetch(`${API_BASE}/list-full`, {
-        headers: { Authorization:`Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` }
     });
     if (!res.ok) throw new Error('Ordnerstruktur konnte nicht geladen werden');
     const data = await res.json();
 
-    // Reset
-    folders = { 'Home': { id:'home', name:'Home', parent:null, items:[], subfolders:[] } };
+    folders = {
+        'Home': { name: 'Home', items: [], subfolders: [], parent: null }
+    };
 
     data.forEach(entry => {
         const key = entry.Key;
-        if (!key||key==='') return;
-        const parts = key.split('/');
-        const name = parts[parts.length-1]||parts[parts.length-2];
-        const parent = parts.length>2?parts[parts.length-2]:'Home';
+        if (!key) return;
 
-        if (key.endsWith('/')) {
-            // Folder
-            if (!folders[parent]) folders[parent]={ id:parent,name:parent,parent:'Home',items:[],subfolders:[] };
-            folders[name]={ id:name,name, parent, items:[], subfolders:[] };
-            folders[parent].subfolders.push(name);
+        const isFolder = key.endsWith('/');
+        const parts = key.split('/').filter(Boolean);
+        const name = parts.at(-1);
+        const fullPath = parts.join('/');
+        const parentPath = parts.length > 1 ? parts.slice(0, -1).join('/') : 'Home';
+
+        if (!folders[parentPath]) {
+            folders[parentPath] = {
+                name: parentPath,
+                items: [],
+                subfolders: [],
+                parent: 'Home'
+            };
+        }
+
+        if (isFolder) {
+            folders[fullPath] = folders[fullPath] || {
+                name,
+                items: [],
+                subfolders: [],
+                parent: parentPath
+            };
+            folders[parentPath].subfolders.push(fullPath);
         } else {
-            // File
-            if (!folders[parent]) folders[parent]={ id:parent,name:parent,parent:'Home',items:[],subfolders:[] };
-            folders[parent].items.push({
-                id:Date.now()+Math.random(),
+            folders[parentPath].items.push({
+                id: Date.now() + Math.random(),
                 name,
                 key,
-                size: formatFileSize(entry.Size||0),
-                date: entry.LastModified?.split('T')[0]||''
+                size: formatFileSize(entry.Size || 0),
+                date: entry.LastModified?.split('T')[0] || ''
             });
         }
     });
 
-    // Event-Listener
+    // Event-Listener (unverändert)
     document.getElementById('logoutBtn').addEventListener('click', handleLogout);
-    document.getElementById('gridViewBtn').addEventListener('click',()=>switchView('grid'));
-    document.getElementById('listViewBtn').addEventListener('click',()=>switchView('list'));
+    document.getElementById('gridViewBtn').addEventListener('click', () => switchView('grid'));
+    document.getElementById('listViewBtn').addEventListener('click', () => switchView('list'));
     document.getElementById('newFolderForm').addEventListener('submit', handleNewFolder);
     document.getElementById('renameForm').addEventListener('submit', handleRename);
     document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
     document.getElementById('uploadForm').addEventListener('submit', handleUpload);
 
-    document.getElementById('breadcrumb').addEventListener('click', e=>{
-        if(e.target.tagName==='A'){
+    document.getElementById('breadcrumb').addEventListener('click', e => {
+        if (e.target.tagName === 'A') {
             e.preventDefault();
             const idx = Array.from(e.target.parentElement.parentElement.children)
                 .indexOf(e.target.parentElement);
-            navigateToPath(currentPath.slice(0,idx+1));
+            navigateToPath(currentPath.slice(0, idx + 1));
         }
     });
 
-    const grid = document.getElementById('contentGrid');
-    grid.addEventListener('dragover', e=>{ e.preventDefault(); grid.classList.add('uk-background-muted'); });
-    grid.addEventListener('dragleave', ()=>grid.classList.remove('uk-background-muted'));
-    grid.addEventListener('drop', async e=>{
-        e.preventDefault();
-        grid.classList.remove('uk-background-muted');
-        await handleUpload({ preventDefault:()=>{}, target: document.getElementById('uploadForm') });
-    });
-
     renderContent();
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/service-worker.js').catch(()=>{});
-    }
 }
 
 // Karten rendern
@@ -325,6 +338,14 @@ function renderContent() {
 
     grid.appendChild(frag);
     updateBreadcrumb();
+    const backBtnContainer = document.querySelector('.uk-container .uk-button-group')?.parentElement;
+    if (currentPath.length > 1) {
+        const backBtn = renderBackButton();
+        if (backBtnContainer && !backBtnContainer.querySelector('.back-btn')) {
+            backBtn.classList.add('back-btn');
+            backBtnContainer.insertBefore(backBtn, backBtnContainer.firstChild);
+        }
+    }
 }
 
 function createFolderCard(f) {
