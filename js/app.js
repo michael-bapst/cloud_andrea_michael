@@ -314,7 +314,7 @@ async function handleUpload(e) {
 
 // ─────────────── Data & Rendering ───────────────
 
-let currentPath = ['Home'];
+let currentPath = [];
 let viewMode = 'grid';
 
 // In-Memory-Struktur
@@ -445,7 +445,7 @@ function renderContent() {
         ? 'uk-grid-small uk-child-width-1-1 uk-child-width-1-2@s uk-child-width-1-3@m uk-child-width-1-4@l'
         : 'uk-grid-small uk-child-width-1-1 list-view';
 
-    const fullCurrentPath = currentPath.join('/') || 'Home';
+    const fullCurrentPath = currentPath.length === 0 ? 'Home' : currentPath.join('/');
     const data = folders[fullCurrentPath];
 
     if (!data) {
@@ -455,7 +455,7 @@ function renderContent() {
 
     const backBtnContainer = document.getElementById('backBtnContainer');
     backBtnContainer.innerHTML = '';
-    if (currentPath.join('/') !== 'Home') {
+    if (currentPath.length > 0) {
         const backBtn = document.createElement('button');
         backBtn.className = 'uk-button uk-button-default uk-flex uk-flex-middle';
         backBtn.innerHTML = '<span uk-icon="arrow-left"></span><span class="uk-margin-small-left">Zurück</span>';
@@ -467,8 +467,6 @@ function renderContent() {
     }
 
     const frag = document.createDocumentFragment();
-
-
     data.subfolders.forEach(n => frag.appendChild(createFolderCard(folders[n])));
     data.items.forEach(it => frag.appendChild(createMediaCard(it)));
 
