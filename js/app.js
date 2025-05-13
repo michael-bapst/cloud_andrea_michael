@@ -163,25 +163,45 @@ async function confirmDelete() {
 // Ordner umbenennen
 async function handleRename(e) {
     e.preventDefault();
-    const oldName = document.getElementById('renameOldName').value;
+    const rawOld = document.getElementById('renameOldName').value;
     const newName = document.getElementById('renameNewName').value.trim();
-    if (!newName || newName === oldName) return;
+    if (!newName || newName === rawOld) return;
+
     const token = getToken();
+
+    // Volle Pfade aus der aktuellen Struktur auflösen
+    const base = currentPath.join('/') === 'Home' ? 'Home' : currentPath.join('/');
+    const fullOldPath = `${base}/${rawOld}`;
+    const fullNewPath = `${base}/${newName}`;
+
     const res = await fetch(`${API_BASE}/rename`, {
-        method:'PUT',
-        headers:{
-            'Content-Type':'application/json',
-            Authorization:`Bearer ${token}`
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ oldPath: oldName, newPath: newName })
+        body: JSON.stringify({ oldPath: fullOldPath, newPath: fullNewPath })
     });
-    if (!res.ok) throw new Error('Umbenennen fehlgeschlagen');
-    // UI updaten
-    const f = folders[oldName];
-    folders[newName] = { ...f, name:newName };
+
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        UIkit.notification({
+            message: err?.error || 'Umbenennen fehlgeschlagen',
+            status: 'danger'
+        });
+        return;
+    }
+
+    // Lokale Struktur aktualisieren
+    const f = folders[fullOldPath];
+    folders[fullNewPath] = { ...f, name: newName };
     const p = f.parent;
-    folders[p].subfolders = folders[p].subfolders.map(n=>n===oldName?newName:n);
-    delete folders[oldName];
+
+    if (folders[p]) {
+        folders[p].subfolders = folders[p].subfolders.map(n => n === fullOldPath ? fullNewPath : n);
+    }
+
+    delete folders[fullOldPath];
     UIkit.modal('#renameModal').hide();
     renderContent();
 }
