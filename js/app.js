@@ -451,24 +451,27 @@ function renderContent() {
         return;
     }
 
+    const backBtnContainer = document.getElementById('backBtnContainer');
+    backBtnContainer.innerHTML = '';
+    if (currentPath.length > 1) {
+        const backBtn = document.createElement('button');
+        backBtn.className = 'uk-button uk-button-default uk-flex uk-flex-middle';
+        backBtn.innerHTML = '<span uk-icon="arrow-left"></span><span class="uk-margin-small-left">Zurück</span>';
+        backBtn.onclick = () => {
+            currentPath.pop();
+            renderContent();
+        };
+        backBtnContainer.appendChild(backBtn);
+    }
+
     const frag = document.createDocumentFragment();
 
-    if (currentPath.length > 1) frag.appendChild(renderBackButton());
 
     data.subfolders.forEach(n => frag.appendChild(createFolderCard(folders[n])));
     data.items.forEach(it => frag.appendChild(createMediaCard(it)));
 
     grid.appendChild(frag);
     updateBreadcrumb();
-
-    const backBtnContainer = document.querySelector('.uk-container .uk-button-group')?.parentElement;
-    if (currentPath.length > 1) {
-        const backBtn = renderBackButton();
-        if (backBtnContainer && !backBtnContainer.querySelector('.back-btn')) {
-            backBtn.classList.add('back-btn');
-            backBtnContainer.insertBefore(backBtn, backBtnContainer.firstChild);
-        }
-    }
 }
 
 function createFolderCard(f) {
@@ -545,17 +548,6 @@ function updateBreadcrumb() {
             ? `<li><span>${p}</span></li>`
             : `<li><a href="#">${p}</a></li>`
     ).join('');
-}
-
-function renderBackButton() {
-    const btn = document.createElement('button');
-    btn.className='uk-button uk-button-default uk-flex uk-flex-middle uk-margin-small-bottom';
-    btn.innerHTML='<span uk-icon="arrow-left"></span><span class="uk-margin-small-left">Zurück</span>';
-    btn.onclick = ()=> {
-        currentPath.pop();
-        renderContent();
-    };
-    return btn;
 }
 
 function navigateToFolder(path) {

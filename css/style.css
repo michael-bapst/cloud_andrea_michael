@@ -208,4 +208,8 @@ body {
             min-height: 180px;
         }
     }
+    #backBtnContainer .uk-button {
+        font-size: 14px;
+        padding: 6px 12px;
+    }
 }
