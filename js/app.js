@@ -455,7 +455,7 @@ function renderContent() {
 
     const backBtnContainer = document.getElementById('backBtnContainer');
     backBtnContainer.innerHTML = '';
-    if (currentPath.length > 1) {
+    if (currentPath.join('/') !== 'Home') {
         const backBtn = document.createElement('button');
         backBtn.className = 'uk-button uk-button-default uk-flex uk-flex-middle';
         backBtn.innerHTML = '<span uk-icon="arrow-left"></span><span class="uk-margin-small-left">Zurück</span>';
