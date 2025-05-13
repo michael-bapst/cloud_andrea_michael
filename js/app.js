@@ -69,7 +69,17 @@ async function deleteFile(key, e) {
         },
         body: JSON.stringify({ path: key })
     });
-    if (!res.ok) throw new Error('Löschen fehlgeschlagen');
+
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        UIkit.notification({
+            message: err?.error || 'Löschen fehlgeschlagen',
+            status: 'danger'
+        });
+        return;
+    }
+
+    UIkit.notification({ message: 'Datei gelöscht', status: 'success' });
     renderContent();
 }
 
@@ -291,10 +301,7 @@ async function init() {
         await handleUpload({ preventDefault:()=>{}, target: document.getElementById('uploadForm') });
     });
 
-    // Render starten
     renderContent();
-
-    // ServiceWorker (optional)
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/service-worker.js').catch(()=>{});
     }
