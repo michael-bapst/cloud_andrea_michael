@@ -181,25 +181,48 @@ async function handleNewFolder(e) {
         UIkit.notification({ message:'Ordnername fehlt', status:'danger' });
         return;
     }
+
     const token = getToken();
-    const current = currentPath.join('/')==='Home'?'':currentPath.join('/');
-    const fullPath = current? `${current}/${name}` : name;
+    const current = currentPath.join('/') === 'Home' ? '' : currentPath.join('/');
+    const fullPath = current ? `${current}/${name}` : name;
+
+    // ✅ Prüfen ob Ordner bereits im aktuellen Pfad existiert
+    if (folders[fullPath]) {
+        UIkit.notification({ message: 'Ordner existiert bereits', status: 'warning' });
+        return;
+    }
+
     const res = await fetch(`${API_BASE}/create-folder`, {
-        method:'POST',
-        headers:{
-            'Content-Type':'application/json',
-            Authorization:`Bearer ${token}`
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
         },
         body: JSON.stringify({ path: fullPath })
     });
-    if (!res.ok) throw new Error('Ordner konnte nicht erstellt werden');
-    // UI updaten
-    folders[name] = {
-        id:name.toLowerCase().replace(/\s+/g,'-'),
-        name, parent: currentPath[currentPath.length-1],
-        items:[], subfolders:[]
+
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        UIkit.notification({
+            message: err?.error || 'Ordner konnte nicht erstellt werden',
+            status: 'danger'
+        });
+        return;
+    }
+
+    folders[fullPath] = {
+        id: name.toLowerCase().replace(/\s+/g, '-'),
+        name,
+        parent: current || 'Home',
+        items: [],
+        subfolders: []
     };
-    folders[currentPath[currentPath.length-1]].subfolders.push(name);
+
+    const parentPath = current || 'Home';
+    if (!folders[parentPath].subfolders.includes(fullPath)) {
+        folders[parentPath].subfolders.push(fullPath);
+    }
+
     UIkit.modal('#newFolderModal').hide();
     input.value = '';
     renderContent();
