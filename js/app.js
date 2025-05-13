@@ -220,22 +220,28 @@ async function handleRename(e) {
 // Neuer Ordner
 async function handleNewFolder(e) {
     e.preventDefault();
+
     const input = document.querySelector('#newFolderForm input[type="text"]');
     const name = input.value.trim();
+
     if (!name) {
-        UIkit.notification({ message:'Ordnername fehlt', status:'danger' });
+        UIkit.notification({ message: 'Ordnername fehlt', status: 'danger' });
         return;
     }
 
     const token = getToken();
+
     const current = currentPath.join('/') === 'Home' ? '' : currentPath.join('/');
     const fullPath = current ? `${current}/${name}` : name;
+    const parentPath = current || 'Home';
 
+    // Prüfen ob bereits vorhanden
     if (folders[fullPath]) {
         UIkit.notification({ message: 'Ordner existiert bereits', status: 'warning' });
         return;
     }
 
+    // API-Aufruf
     const res = await fetch(`${API_BASE}/create-folder`, {
         method: 'POST',
         headers: {
@@ -257,12 +263,21 @@ async function handleNewFolder(e) {
     folders[fullPath] = {
         id: name.toLowerCase().replace(/\s+/g, '-'),
         name,
-        parent: current || 'Home',
+        parent: parentPath,
         items: [],
         subfolders: []
     };
 
-    const parentPath = current || 'Home';
+    if (!folders[parentPath]) {
+        folders[parentPath] = {
+            name: parentPath.split('/').pop(),
+            items: [],
+            subfolders: [],
+            parent: parentPath.includes('/') ? parentPath.split('/').slice(0, -1).join('/') : 'Home'
+        };
+    }
+
+    // Subfolder hinzufügen
     if (!folders[parentPath].subfolders.includes(fullPath)) {
         folders[parentPath].subfolders.push(fullPath);
     }
@@ -506,6 +521,14 @@ function renderBackButton() {
 }
 
 function navigateToFolder(name) {
+    const base = currentPath.join('/') === 'Home' ? 'Home' : currentPath.join('/');
+    const fullPath = `${base}/${name}`;
+
+    if (!folders[fullPath]) {
+        UIkit.notification({ message: `Ordner "${name}" nicht gefunden`, status: 'danger' });
+        return;
+    }
+
     currentPath.push(name);
     renderContent();
 }
