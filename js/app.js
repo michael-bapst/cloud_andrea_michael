@@ -163,16 +163,29 @@ async function confirmDelete() {
 // Ordner umbenennen
 async function handleRename(e) {
     e.preventDefault();
-    const rawOld = document.getElementById('renameOldName').value;
+    const oldName = document.getElementById('renameOldName').value.trim();
     const newName = document.getElementById('renameNewName').value.trim();
-    if (!newName || newName === rawOld) return;
+    if (!newName || newName === oldName) return;
 
     const token = getToken();
 
-    // Volle Pfade aus der aktuellen Struktur auflösen
-    const base = currentPath.join('/') === 'Home' ? 'Home' : currentPath.join('/');
-    const fullOldPath = `${base}/${rawOld}`;
-    const fullNewPath = `${base}/${newName}`;
+    let oldPath = null;
+    for (const key in folders) {
+        if (folders[key].name === oldName && folders[key].parent === currentPath.join('/')) {
+            oldPath = key;
+            break;
+        }
+    }
+
+    if (!oldPath) {
+        UIkit.notification({ message: 'Pfad nicht gefunden', status: 'danger' });
+        return;
+    }
+
+    // 🧱 Den neuen Pfad auf Basis des alten Pfades erstellen
+    const parts = oldPath.split('/');
+    parts[parts.length - 1] = newName;
+    const newPath = parts.join('/');
 
     const res = await fetch(`${API_BASE}/rename`, {
         method: 'PUT',
@@ -180,7 +193,7 @@ async function handleRename(e) {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ oldPath: fullOldPath, newPath: fullNewPath })
+        body: JSON.stringify({ oldPath, newPath })
     });
 
     if (!res.ok) {
@@ -192,16 +205,14 @@ async function handleRename(e) {
         return;
     }
 
-    // Lokale Struktur aktualisieren
-    const f = folders[fullOldPath];
-    folders[fullNewPath] = { ...f, name: newName };
+    const f = folders[oldPath];
+    folders[newPath] = { ...f, name: newName };
     const p = f.parent;
-
     if (folders[p]) {
-        folders[p].subfolders = folders[p].subfolders.map(n => n === fullOldPath ? fullNewPath : n);
+        folders[p].subfolders = folders[p].subfolders.map(n => n === oldPath ? newPath : n);
     }
+    delete folders[oldPath];
 
-    delete folders[fullOldPath];
     UIkit.modal('#renameModal').hide();
     renderContent();
 }
