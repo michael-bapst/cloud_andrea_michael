@@ -11,7 +11,6 @@ function getToken() {
     return localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
 }
 
-// Logout & Weiterleitung
 function handleLogout() {
     localStorage.removeItem('authToken');
     sessionStorage.removeItem('authToken');
