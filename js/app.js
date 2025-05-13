@@ -98,29 +98,27 @@ async function downloadFile(key) {
 let folderToDelete = null;
 
 // Rename-Modal öffnen
-function editFolder(name, event) {
+function editFolder(path, event) {
     event.stopPropagation();
-    document.getElementById('renameOldName').value = name;
-    document.getElementById('renameNewName').value = name;
+    const f = folders[path];
+    document.getElementById('renameOldName').value = f.name;
+    document.getElementById('renameNewName').value = f.name;
+    folderToDelete = path;
     UIkit.modal('#renameModal').show();
 }
 
-// Delete-Modal öffnen
-function deleteFolder(name, event) {
+function deleteFolder(path, event) {
     event.stopPropagation();
-    folderToDelete = name;
-    document.getElementById('deleteConfirmText').textContent = `Ordner "${name}" wirklich löschen?`;
+    folderToDelete = path;
+    const f = folders[path];
+    document.getElementById('deleteConfirmText').textContent = `Ordner "${f.name}" wirklich löschen?`;
     UIkit.modal('#deleteModal').show();
 }
 
 // Ordner wirklich löschen
 async function confirmDelete() {
-    const raw = folderToDelete;
+    const fullPath = folderToDelete;
     const token = getToken();
-
-    // Exakten Pfad aus aktuellem Kontext ermitteln
-    const base = currentPath.join('/') === 'Home' ? 'Home' : currentPath.join('/');
-    const fullPath = `${base}/${raw}`;
 
     if (!folders[fullPath]) {
         UIkit.notification({
@@ -158,7 +156,6 @@ async function confirmDelete() {
     UIkit.notification({ message: 'Ordner gelöscht', status: 'success' });
     renderContent();
 }
-
 
 // Ordner umbenennen
 async function handleRename(e) {
@@ -230,18 +227,15 @@ async function handleNewFolder(e) {
     }
 
     const token = getToken();
-
     const current = currentPath.join('/') === 'Home' ? '' : currentPath.join('/');
     const fullPath = current ? `${current}/${name}` : name;
     const parentPath = current || 'Home';
 
-    // Prüfen ob bereits vorhanden
     if (folders[fullPath]) {
         UIkit.notification({ message: 'Ordner existiert bereits', status: 'warning' });
         return;
     }
 
-    // API-Aufruf
     const res = await fetch(`${API_BASE}/create-folder`, {
         method: 'POST',
         headers: {
@@ -261,7 +255,7 @@ async function handleNewFolder(e) {
     }
 
     folders[fullPath] = {
-        id: name.toLowerCase().replace(/\s+/g, '-'),
+        id: fullPath,
         name,
         parent: parentPath,
         items: [],
@@ -270,6 +264,7 @@ async function handleNewFolder(e) {
 
     if (!folders[parentPath]) {
         folders[parentPath] = {
+            id: parentPath,
             name: parentPath.split('/').pop(),
             items: [],
             subfolders: [],
@@ -277,7 +272,6 @@ async function handleNewFolder(e) {
         };
     }
 
-    // Subfolder hinzufügen
     if (!folders[parentPath].subfolders.includes(fullPath)) {
         folders[parentPath].subfolders.push(fullPath);
     }
@@ -340,7 +334,7 @@ async function init() {
     const data = await res.json();
 
     folders = {
-        'Home': { name: 'Home', items: [], subfolders: [], parent: null }
+        'Home': { id: 'Home', name: 'Home', items: [], subfolders: [], parent: null }
     };
 
     data.forEach(entry => {
@@ -354,7 +348,6 @@ async function init() {
         const parentPath = parts.slice(0, -1).join('/') || 'Home';
 
         // 🧱 Elternstruktur rekursiv sicherstellen
-        let acc = 'Home';
         for (let i = 1; i < parts.length; i++) {
             const currentPath = parts.slice(0, i + 1).join('/');
             const parent = parts.slice(0, i).join('/') || 'Home';
@@ -362,6 +355,7 @@ async function init() {
 
             if (!folders[parent]) {
                 folders[parent] = {
+                    id: parent,
                     name: parent.split('/').pop(),
                     items: [],
                     subfolders: [],
@@ -371,6 +365,7 @@ async function init() {
 
             if (!folders[currentPath]) {
                 folders[currentPath] = {
+                    id: currentPath,
                     name: currentName,
                     items: [],
                     subfolders: [],
@@ -384,9 +379,24 @@ async function init() {
         }
 
         // 📁 Datei oder Ordner ergänzen
-        if (!isFolder) {
+        if (isFolder) {
+            if (!folders[fullPath]) {
+                folders[fullPath] = {
+                    id: fullPath,
+                    name,
+                    items: [],
+                    subfolders: [],
+                    parent: parentPath
+                };
+            }
+
+            if (!folders[parentPath].subfolders.includes(fullPath)) {
+                folders[parentPath].subfolders.push(fullPath);
+            }
+        } else {
             if (!folders[parentPath]) {
                 folders[parentPath] = {
+                    id: parentPath,
                     name: parentPath.split('/').pop(),
                     items: [],
                     subfolders: [],
@@ -404,7 +414,7 @@ async function init() {
         }
     });
 
-    // Event-Listener (unverändert)
+    // Event-Listener
     document.getElementById('logoutBtn').addEventListener('click', handleLogout);
     document.getElementById('gridViewBtn').addEventListener('click', () => switchView('grid'));
     document.getElementById('listViewBtn').addEventListener('click', () => switchView('list'));
@@ -429,12 +439,18 @@ async function init() {
 function renderContent() {
     const grid = document.getElementById('contentGrid');
     grid.innerHTML = '';
-    grid.className = viewMode==='grid'
+    grid.className = viewMode === 'grid'
         ? 'uk-grid-small uk-child-width-1-1 uk-child-width-1-2@s uk-child-width-1-3@m uk-child-width-1-4@l'
         : 'uk-grid-small uk-child-width-1-1 list-view';
 
     const fullCurrentPath = currentPath.join('/') || 'Home';
     const data = folders[fullCurrentPath];
+
+    if (!data) {
+        UIkit.notification({ message: `Pfad "${fullCurrentPath}" nicht gefunden`, status: 'danger' });
+        return;
+    }
+
     const frag = document.createDocumentFragment();
 
     if (currentPath.length > 1) frag.appendChild(renderBackButton());
@@ -458,8 +474,8 @@ function renderContent() {
 function createFolderCard(f) {
     const date = new Date().toLocaleDateString('de-DE');
     const div = document.createElement('div');
-    div.className='media-item folder-item uk-width-1-1';
-    div.innerHTML=`
+    div.className = 'media-item folder-item uk-width-1-1';
+    div.innerHTML = `
     <div class="uk-card uk-card-default uk-margin-small uk-padding-remove folder-card">
       <div class="folder-accent-bar"></div>
       <div class="uk-card-body uk-padding-small">
@@ -469,13 +485,13 @@ function createFolderCard(f) {
           <div class="uk-text-meta">${date}</div>
         </div>
         <div class="folder-buttons">
-          <button class="uk-button uk-button-default uk-button-small" onclick="navigateToFolder('${f.name}')">
+          <button class="uk-button uk-button-default uk-button-small" onclick="navigateToFolder('${f.id}')">
             <span uk-icon="folder"></span> Öffnen
           </button>
-          <button class="uk-button uk-button-default uk-button-small" onclick="editFolder('${f.name}',event)">
+          <button class="uk-button uk-button-default uk-button-small" onclick="editFolder('${f.id}', event)">
             <span uk-icon="pencil"></span> Bearbeiten
           </button>
-          <button class="uk-button uk-button-default uk-button-small" onclick="deleteFolder('${f.name}',event)">
+          <button class="uk-button uk-button-default uk-button-small" onclick="deleteFolder('${f.id}', event)">
             <span uk-icon="trash"></span> Löschen
           </button>
         </div>
@@ -542,16 +558,12 @@ function renderBackButton() {
     return btn;
 }
 
-function navigateToFolder(name) {
-    const base = currentPath.join('/') === 'Home' ? 'Home' : currentPath.join('/');
-    const fullPath = `${base}/${name}`;
-
-    if (!folders[fullPath]) {
-        UIkit.notification({ message: `Ordner "${name}" nicht gefunden`, status: 'danger' });
+function navigateToFolder(path) {
+    if (!folders[path]) {
+        UIkit.notification({ message: `Ordner "${path}" nicht gefunden`, status: 'danger' });
         return;
     }
-
-    currentPath.push(name);
+    currentPath = path.split('/');
     renderContent();
 }
 
