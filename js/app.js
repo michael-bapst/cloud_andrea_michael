@@ -186,7 +186,6 @@ async function handleNewFolder(e) {
     const current = currentPath.join('/') === 'Home' ? '' : currentPath.join('/');
     const fullPath = current ? `${current}/${name}` : name;
 
-    // ✅ Prüfen ob Ordner bereits im aktuellen Pfad existiert
     if (folders[fullPath]) {
         UIkit.notification({ message: 'Ordner existiert bereits', status: 'warning' });
         return;
