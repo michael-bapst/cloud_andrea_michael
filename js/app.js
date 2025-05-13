@@ -24,7 +24,9 @@ async function getSignedFileUrl(key) {
     const res = await fetch(`${API_BASE}/file/${encodeURIComponent(key)}`, {
         method: 'GET',
         headers: { Authorization: `Bearer ${token}` },
-        redirect: 'manual'
+        redirect: 'manual',
+        mode: 'cors',
+        cache: 'no-store'
     });
     if (res.status === 302) {
         return res.headers.get('Location');
@@ -505,37 +507,35 @@ function createFolderCard(f) {
 
 function createMediaCard(item) {
     const div = document.createElement('div');
-    div.className='media-item';
-    div.innerHTML=`
+    div.className = 'media-item';
+    const imgId = `img-${Math.random().toString(36).slice(2)}`;
+    div.innerHTML = `
     <div class="uk-card uk-card-default">
-      <div class="uk-card-media-top">
-        <img src="" alt="${item.name}" data-key="${item.key}">
+      <div class="uk-card-media-top" style="height:160px;display:flex;align-items:center;justify-content:center">
+        <img id="${imgId}" src="" alt="${item.name}" style="max-height:100%;max-width:100%;object-fit:contain;">
       </div>
       <div class="uk-card-body">
-        <h3 class="uk-card-title">${item.name}</h3>
+        <h3 class="uk-card-title uk-text-truncate" title="${item.name}">${item.name}</h3>
         <p>${item.size} • ${item.date}</p>
-        <button class="uk-button uk-button-default uk-button-small" onclick="event.stopPropagation(); previewMedia('${item.name}', this.closest('.uk-card').querySelector('img').src)">
-          <span uk-icon="play-circle"></span> Vorschau
-        </button>
-        <button class="uk-button uk-button-default uk-button-small" onclick="event.stopPropagation(); downloadFile('${item.key}')">
-          <span uk-icon="download"></span> Herunterladen
-        </button>
-        <button class="uk-button uk-button-danger uk-button-small" onclick="deleteFile('${item.key}', event)">
-          <span uk-icon="trash"></span>
-        </button>
+        <div class="uk-flex uk-flex-between uk-flex-wrap">
+          <button class="uk-button uk-button-default uk-button-small" onclick="downloadFile('${item.key}')">
+            <span uk-icon="download"></span> Herunterladen
+          </button>
+          <button class="uk-button uk-button-default uk-button-small" onclick="deleteFile('${item.key}', event)">
+            <span uk-icon="trash"></span> Löschen
+          </button>
+        </div>
       </div>
     </div>`;
 
-    // async Vorschaubild setzen
     getSignedFileUrl(item.key)
-        .then(url=>{
-            const img = div.querySelector('img');
+        .then(url => {
+            const img = div.querySelector(`#${imgId}`);
             img.src = url;
-            // Preview-Button aktualisieren
-            const pvBtn = div.querySelector('button[uk-icon="play-circle"]')?.parentElement;
-            if(pvBtn) pvBtn.setAttribute('onclick', `event.stopPropagation(); previewMedia('${item.name}','${url}')`);
         })
-        .catch(err=> console.error('Thumbnail-Error:',err));
+        .catch(err => {
+            console.error('Thumbnail-Error:', err);
+        });
 
     return div;
 }
