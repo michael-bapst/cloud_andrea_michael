@@ -18,7 +18,6 @@ function handleLogout() {
     window.location.href = 'index.html';
 }
 
-// Presigned URL holen (umgeht 401 bei <img>)
 async function getSignedFileUrl(key) {
     const token = getToken();
     const res = await fetch(`${API_BASE}/file/${encodeURIComponent(key)}`, {
@@ -28,12 +27,14 @@ async function getSignedFileUrl(key) {
         mode: 'cors',
         cache: 'no-store'
     });
+
     if (res.status === 302) {
         return res.headers.get('Location');
     }
     if (res.ok) {
         return res.url;
     }
+
     throw new Error(`Presign fehlgeschlagen (${res.status})`);
 }
 
@@ -46,18 +47,6 @@ function formatFileSize(bytes) {
 }
 
 // ─────────────── Globale Aktionen ───────────────
-
-// Vorschau öffnen
-function previewMedia(name, url) {
-    const ext = name.split('.').pop().toLowerCase();
-    const isVideo = ['mp4','webm','ogg'].includes(ext);
-    const modal = document.getElementById('previewModal');
-    const container = modal.querySelector('.preview-container');
-    container.innerHTML = isVideo
-        ? `<video controls style="width:100%"><source src="${url}" type="video/${ext}"></video>`
-        : `<img src="${url}" alt="${name}" style="width:100%">`;
-    UIkit.modal(modal).show();
-}
 
 // Datei löschen
 async function deleteFile(key, e) {

@@ -212,4 +212,11 @@ body {
         font-size: 14px;
         padding: 6px 12px;
     }
+    .uk-card-media-top img {
+        border-radius: 4px;
+        object-fit: contain;
+        background-color: #f4f4f4;
+        max-height: 160px;
+        max-width: 100%;
+    }
 }
