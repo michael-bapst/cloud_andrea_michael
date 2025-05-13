@@ -266,28 +266,31 @@ async function init() {
         if (!key) return;
 
         const isFolder = key.endsWith('/');
-        const parts = key.split('/').filter(Boolean);
+        const parts = key.split('/').filter(Boolean); // entfernt leere Einträge
         const name = parts.at(-1);
         const fullPath = parts.join('/');
-        const parentPath = parts.length > 1 ? parts.slice(0, -1).join('/') : 'Home';
+        const parentPath = parts.slice(0, -1).join('/') || 'Home';
 
-        if (!folders[parentPath]) {
-            folders[parentPath] = {
-                name: parentPath,
-                items: [],
-                subfolders: [],
-                parent: 'Home'
-            };
+        // Elternknoten sicherstellen (rekursiv)
+        for (let i = 1; i <= parts.length - 1; i++) {
+            const path = parts.slice(0, i).join('/');
+            const parent = i === 1 ? 'Home' : parts.slice(0, i - 1).join('/');
+
+            if (!folders[path]) {
+                folders[path] = { name: parts[i - 1], items: [], subfolders: [], parent };
+                if (!folders[parent].subfolders.includes(path)) {
+                    folders[parent].subfolders.push(path);
+                }
+            }
         }
 
         if (isFolder) {
-            folders[fullPath] = folders[fullPath] || {
-                name,
-                items: [],
-                subfolders: [],
-                parent: parentPath
-            };
-            folders[parentPath].subfolders.push(fullPath);
+            if (!folders[fullPath]) {
+                folders[fullPath] = { name, items: [], subfolders: [], parent: parentPath };
+            }
+            if (!folders[parentPath].subfolders.includes(fullPath)) {
+                folders[parentPath].subfolders.push(fullPath);
+            }
         } else {
             folders[parentPath].items.push({
                 id: Date.now() + Math.random(),
