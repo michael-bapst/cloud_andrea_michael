@@ -348,32 +348,52 @@ async function init() {
         if (!key) return;
 
         const isFolder = key.endsWith('/');
-        const parts = key.split('/').filter(Boolean); // entfernt leere Einträge
+        const parts = key.split('/').filter(Boolean);
         const name = parts.at(-1);
         const fullPath = parts.join('/');
         const parentPath = parts.slice(0, -1).join('/') || 'Home';
 
-        // Elternknoten sicherstellen (rekursiv)
-        for (let i = 1; i <= parts.length - 1; i++) {
-            const path = parts.slice(0, i).join('/');
-            const parent = i === 1 ? 'Home' : parts.slice(0, i - 1).join('/');
+        // 🧱 Elternstruktur rekursiv sicherstellen
+        let acc = 'Home';
+        for (let i = 1; i < parts.length; i++) {
+            const currentPath = parts.slice(0, i + 1).join('/');
+            const parent = parts.slice(0, i).join('/') || 'Home';
+            const currentName = parts[i];
 
-            if (!folders[path]) {
-                folders[path] = { name: parts[i - 1], items: [], subfolders: [], parent };
-                if (!folders[parent].subfolders.includes(path)) {
-                    folders[parent].subfolders.push(path);
-                }
+            if (!folders[parent]) {
+                folders[parent] = {
+                    name: parent.split('/').pop(),
+                    items: [],
+                    subfolders: [],
+                    parent: parent.includes('/') ? parent.split('/').slice(0, -1).join('/') : 'Home'
+                };
+            }
+
+            if (!folders[currentPath]) {
+                folders[currentPath] = {
+                    name: currentName,
+                    items: [],
+                    subfolders: [],
+                    parent
+                };
+            }
+
+            if (!folders[parent].subfolders.includes(currentPath)) {
+                folders[parent].subfolders.push(currentPath);
             }
         }
 
-        if (isFolder) {
-            if (!folders[fullPath]) {
-                folders[fullPath] = { name, items: [], subfolders: [], parent: parentPath };
+        // 📁 Datei oder Ordner ergänzen
+        if (!isFolder) {
+            if (!folders[parentPath]) {
+                folders[parentPath] = {
+                    name: parentPath.split('/').pop(),
+                    items: [],
+                    subfolders: [],
+                    parent: parentPath.includes('/') ? parentPath.split('/').slice(0, -1).join('/') : 'Home'
+                };
             }
-            if (!folders[parentPath].subfolders.includes(fullPath)) {
-                folders[parentPath].subfolders.push(fullPath);
-            }
-        } else {
+
             folders[parentPath].items.push({
                 id: Date.now() + Math.random(),
                 name,
