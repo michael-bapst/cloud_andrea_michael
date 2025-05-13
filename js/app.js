@@ -115,15 +115,28 @@ function deleteFolder(name, event) {
 
 // Ordner wirklich löschen
 async function confirmDelete() {
-    const name = folderToDelete;
+    const raw = folderToDelete;
     const token = getToken();
+
+    // Exakten Pfad aus aktuellem Kontext ermitteln
+    const base = currentPath.join('/') === 'Home' ? 'Home' : currentPath.join('/');
+    const fullPath = `${base}/${raw}`;
+
+    if (!folders[fullPath]) {
+        UIkit.notification({
+            message: 'Pfad konnte nicht ermittelt werden',
+            status: 'danger'
+        });
+        return;
+    }
+
     const res = await fetch(`${API_BASE}/delete`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ path: name })
+        body: JSON.stringify({ path: fullPath })
     });
 
     if (!res.ok) {
@@ -135,16 +148,17 @@ async function confirmDelete() {
         return;
     }
 
-    const parent = folders[name]?.parent;
+    const parent = folders[fullPath]?.parent;
     if (parent && folders[parent]) {
-        folders[parent].subfolders = folders[parent].subfolders.filter(n => n !== name);
+        folders[parent].subfolders = folders[parent].subfolders.filter(n => n !== fullPath);
     }
 
-    delete folders[name];
+    delete folders[fullPath];
     UIkit.modal('#deleteModal').hide();
     UIkit.notification({ message: 'Ordner gelöscht', status: 'success' });
     renderContent();
 }
+
 
 // Ordner umbenennen
 async function handleRename(e) {
