@@ -433,16 +433,18 @@ function renderContent() {
         ? 'uk-grid-small uk-child-width-1-1 uk-child-width-1-2@s uk-child-width-1-3@m uk-child-width-1-4@l'
         : 'uk-grid-small uk-child-width-1-1 list-view';
 
-    const current = currentPath[currentPath.length-1];
-    const data = folders[current];
+    const fullCurrentPath = currentPath.join('/') || 'Home';
+    const data = folders[fullCurrentPath];
     const frag = document.createDocumentFragment();
 
-    if (currentPath.length>1) frag.appendChild(renderBackButton());
-    data.subfolders.forEach(n=>frag.appendChild(createFolderCard(folders[n])));
-    data.items.forEach(it=>frag.appendChild(createMediaCard(it)));
+    if (currentPath.length > 1) frag.appendChild(renderBackButton());
+
+    data.subfolders.forEach(n => frag.appendChild(createFolderCard(folders[n])));
+    data.items.forEach(it => frag.appendChild(createMediaCard(it)));
 
     grid.appendChild(frag);
     updateBreadcrumb();
+
     const backBtnContainer = document.querySelector('.uk-container .uk-button-group')?.parentElement;
     if (currentPath.length > 1) {
         const backBtn = renderBackButton();
