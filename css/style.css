@@ -15,64 +15,46 @@ body {
     padding-bottom: 40px;
 }
 
-/* Karten / Items */
-.uk-card {
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-    height: 100%;
-}
-
-.uk-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-}
-
-.media-item {
+/* Medienansicht im Cloud-Stil */
+.media-cloud-item {
+    transition: transform 0.15s ease;
     position: relative;
-    margin-bottom: 20px;
-}
-
-.uk-card-media-top {
-    max-height: 180px;
     overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #fff;
 }
 
-.uk-card-media-top img {
+.media-cloud-item:hover {
+    transform: scale(1.02);
+    cursor: pointer;
+}
+
+.media-cloud-item img {
     width: 100%;
-    height: auto;
-    object-fit: contain;
+    max-height: 220px;
+    object-fit: cover;
     border-radius: 6px;
-    max-height: 180px;
+    display: block;
     background-color: #f4f4f4;
 }
 
-/* Grid-Optimierung */
-#contentGrid.uk-grid-small {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 20px;
-}
-
-/* List-Ansicht */
-.list-view .uk-card {
+.media-actions {
+    position: absolute;
+    top: 8px;
+    right: 8px;
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding: 10px;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.2s;
 }
 
-.list-view .uk-card-media-top {
-    width: 100px;
-    height: 100px;
-    flex-shrink: 0;
+.media-cloud-item:hover .media-actions {
+    opacity: 1;
 }
 
-.list-view .uk-card-body {
-    flex-grow: 1;
-    padding: 0 15px;
+/* Grid dynamisch erzeugt – keine fixe Struktur hier */
+#contentGrid > div[uk-grid] {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
 }
 
 /* Buttons */
@@ -94,37 +76,6 @@ body {
 
 .uk-button-primary {
     background-color: var(--primary-color);
-}
-
-/* Folder-Karte */
-.folder-card {
-    aspect-ratio: 3 / 2;
-    min-height: 220px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-.folder-content {
-    text-align: center;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.folder-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-top: auto;
-    align-items: center;
-}
-
-.folder-accent-bar {
-    background-color: var(--primary-color);
-    height: 32px;
-    border-radius: 4px 4px 0 0;
 }
 
 /* Breadcrumbs */
@@ -152,80 +103,24 @@ body {
     padding: 30px;
 }
 
-/* Navbar */
-.uk-navbar-container {
-    background: #fff !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-}
-
-/* Mobile */
+/* Mobile Optimierungen */
 @media (max-width: 640px) {
     .uk-container {
         padding-left: 15px;
         padding-right: 15px;
     }
 
-    #contentGrid.uk-grid-small {
-        display: grid;
+    #contentGrid > div[uk-grid] {
         grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
         gap: 12px;
     }
 
-    .uk-card-media-top {
-        height: 140px !important;
-    }
-
-    .uk-card-body {
-        padding: 10px;
-        font-size: 14px;
+    .media-cloud-item img {
+        max-height: 140px;
     }
 
     .uk-button-small {
         font-size: 12px;
         padding: 2px 8px;
     }
-
-    .media-item img {
-        object-fit: cover;
-        max-height: 140px;
-    }
-
-    .folder-card {
-        aspect-ratio: unset;
-        min-height: 180px;
-    }
-
-    .folder-card .uk-heading-small {
-        font-size: 16px;
-    }
-
-    .folder-card .uk-text-meta {
-        font-size: 12px;
-    }
-
-    #backBtnContainer .uk-button {
-        font-size: 14px;
-        padding: 6px 12px;
-    }
-}
-.media-photo-card {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.media-thumb-container {
-    height: 180px;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f8f8f8;
-}
-
-.media-thumb-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 6px 6px 0 0;
 }

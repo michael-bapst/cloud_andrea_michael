@@ -1,6 +1,5 @@
 // js/media.js
 
-// 🔓 Globale Funktion für main.js usw.
 window.isMediaFile = function(name) {
     return /\.(jpe?g|png|gif|bmp|webp|mp4|webm)$/i.test(name);
 };
@@ -63,35 +62,61 @@ function createMediaCard(item) {
         return document.createComment('Nicht-Medien-Datei oder Ordner wird nicht angezeigt');
     }
 
-    const div = document.createElement('div');
-    div.className = 'uk-flex uk-flex-column uk-margin-small';
+    const container = document.createElement('div');
+    container.className = 'media-cloud-item';
+    container.style.position = 'relative';
+    container.style.overflow = 'hidden';
 
     const imgId = `img-${Math.random().toString(36).slice(2)}`;
+    const anchorId = `a-${Math.random().toString(36).slice(2)}`;
 
-    div.innerHTML = `
-        <div class="uk-inline">
-            <img id="${imgId}" alt="${item.name}" style="max-width: 100%; border-radius: 8px; object-fit: contain; background: #fff;" />
-            <div class="uk-position-top-right uk-overlay uk-overlay-default uk-padding-small">
-                <button class="uk-icon-button" uk-icon="download" onclick="downloadFile('${item.key}')"></button>
-                <button class="uk-icon-button" uk-icon="trash" onclick="deleteFile('${item.key}', event)"></button>
-            </div>
+    container.innerHTML = `
+        <a id="${anchorId}" href="#" data-caption="${item.name}" uk-lightbox>
+            <img id="${imgId}" alt="${item.name}" style="
+                width: 100%;
+                max-height: 220px;
+                object-fit: cover;
+                border-radius: 6px;
+                background-color: #f4f4f4;
+                display: block;
+            " />
+        </a>
+        <div class="media-actions" style="
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: flex;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        ">
+            <button class="uk-icon-button" uk-icon="download" title="Download" onclick="downloadFile('${item.key}')"></button>
+            <button class="uk-icon-button" uk-icon="trash" title="Löschen" onclick="deleteFile('${item.key}', event)"></button>
         </div>
-        <div class="uk-text-small uk-text-truncate uk-margin-small-top" title="${item.name}">
-            ${item.name}
+        <div style="margin-top: 6px;">
+            <div class="uk-text-small uk-text-truncate" title="${item.name}">${item.name}</div>
+            <div class="uk-text-meta">${item.size} • ${item.date}</div>
         </div>
-        <div class="uk-text-meta">${item.size} • ${item.date}</div>
     `;
+
+    container.addEventListener('mouseenter', () => {
+        container.querySelector('.media-actions').style.opacity = 1;
+    });
+    container.addEventListener('mouseleave', () => {
+        container.querySelector('.media-actions').style.opacity = 0;
+    });
 
     getSignedFileUrl(item.key)
         .then(url => {
-            const img = div.querySelector(`#${imgId}`);
-            const link = div.querySelector(`#${imgId}`).closest('img');
+            const img = container.querySelector(`#${imgId}`);
+            const anchor = container.querySelector(`#${anchorId}`);
             img.src = url;
+            anchor.href = url; // 💡 für Lightbox!
         })
         .catch(err => {
-            console.warn('❌ Vorschaubild konnte nicht geladen werden:', err.message);
+            console.warn('Vorschaubild konnte nicht geladen werden:', err.message);
         });
 
-    return div;
+    return container;
 }
 
