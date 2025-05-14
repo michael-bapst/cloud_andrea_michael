@@ -2,8 +2,10 @@
 
 async function handleUpload(e) {
     e.preventDefault();
+
     const fileInput = document.querySelector('#uploadForm input[name="file"]');
     const files = fileInput.files;
+
     if (!files.length) {
         UIkit.notification({ message: 'Keine Datei gewählt', status: 'danger' });
         return;
@@ -12,10 +14,12 @@ async function handleUpload(e) {
     const token = getToken();
     const folderPath = currentPath.length === 0 ? '' : currentPath.join('/');
 
+    const safeFolderPath = folderPath.replace(/\/+$/, '');
+
     for (const file of files) {
         const form = new FormData();
         form.append('file', file);
-        form.append('folder', folderPath);
+        form.append('folder', safeFolderPath);
 
         try {
             const res = await fetch(`${API_BASE}/upload`, {
@@ -26,7 +30,7 @@ async function handleUpload(e) {
 
             if (!res.ok) {
                 const err = await res.json().catch(() => ({}));
-                throw new Error(err.detail || 'Upload fehlgeschlagen');
+                throw new Error(err?.error || 'Upload fehlgeschlagen');
             }
         } catch (err) {
             UIkit.notification({ message: err.message || 'Upload-Fehler', status: 'danger' });
