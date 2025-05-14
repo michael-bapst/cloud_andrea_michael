@@ -1,4 +1,6 @@
-// Funktion global machen (wird von main.js etc. benötigt)
+// js/media.js
+
+// 🔓 Globale Funktion für main.js usw.
 window.isMediaFile = function(name) {
     return /\.(jpe?g|png|gif|bmp|webp|mp4|webm)$/i.test(name);
 };
@@ -57,7 +59,6 @@ async function downloadFile(key) {
 }
 
 function createMediaCard(item) {
-    // 🔍 Nur echte Mediendateien anzeigen
     if (!item || !item.name || item.key.endsWith('/') || !isMediaFile(item.name)) {
         return document.createComment('Nicht-Medien-Datei oder Ordner wird nicht angezeigt');
     }
@@ -70,7 +71,7 @@ function createMediaCard(item) {
     <div class="uk-card uk-card-default uk-card-hover uk-overflow-hidden uk-border-rounded">
       <div class="uk-card-media-top uk-flex uk-flex-center uk-flex-middle" style="height: 180px; background: #fff">
         <a href="" data-caption="${item.name}" data-type="image" uk-lightbox>
-          <img id="${imgId}" src="icons/loader.svg" loading="lazy" alt="${item.name}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+          <img id="${imgId}" src="" loading="lazy" alt="${item.name}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
         </a>
       </div>
       <div class="uk-card-body uk-padding-small">
@@ -97,7 +98,7 @@ function createMediaCard(item) {
             link.href = url;
         })
         .catch(err => {
-            console.warn('Vorschaubild konnte nicht geladen werden:', err.message);
+            console.warn('❌ Vorschaubild konnte nicht geladen werden:', err.message);
         });
 
     return div;

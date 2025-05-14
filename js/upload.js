@@ -12,7 +12,6 @@ window.handleUpload = async function (e) {
 
     const token = getToken();
     const folderPath = currentPath.length === 0 ? '' : currentPath.join('/');
-
     const safeFolderPath = folderPath.replace(/\/+$/, '');
 
     for (const file of files) {
@@ -39,6 +38,5 @@ window.handleUpload = async function (e) {
     UIkit.notification({ message: 'Upload abgeschlossen', status: 'success' });
     UIkit.modal('#uploadModal').hide();
     fileInput.value = '';
-
     renderContent();
 };
