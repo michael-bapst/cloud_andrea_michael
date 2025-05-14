@@ -101,11 +101,21 @@ function editFolder(path, event) {
 
 function deleteFolder(path, event) {
     event.stopPropagation();
-    folderToDelete = path;
-    const f = folders[path];
+
+    const normalizedPath = path.endsWith('/') ? path : path + '/';
+
+    folderToDelete = normalizedPath;
+    const f = folders[normalizedPath];
+
+    if (!f) {
+        UIkit.notification({ message: `Ordner "${normalizedPath}" nicht gefunden`, status: 'danger' });
+        return;
+    }
+
     document.getElementById('deleteConfirmText').textContent = `Ordner "${f.name}" wirklich löschen?`;
     UIkit.modal('#deleteModal').show();
 }
+
 
 // Ordner wirklich löschen
 async function confirmDelete() {
