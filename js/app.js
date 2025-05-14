@@ -371,7 +371,7 @@ async function init() {
         const fullPath = parts.join('/');
         const parentPath = parts.slice(0, -1).join('/') || 'Home';
 
-        // 🔁 Elternstruktur rekursiv aufbauen
+        // 🔁 Elternstruktur rekursiv sicherstellen
         for (let i = 1; i <= parts.length; i++) {
             const segmentPath = parts.slice(0, i).join('/');
             const parent = parts.slice(0, i - 1).join('/') || 'Home';
@@ -402,30 +402,29 @@ async function init() {
             }
         }
 
-        // 📁 Ordner verarbeiten
-        if (isFolder) return;
+        // 📁 Nur Dateien (nicht Ordner!) als Media-Item
+        if (!isFolder && !key.endsWith('/')) {
+            if (!folders[parentPath]) {
+                folders[parentPath] = {
+                    id: parentPath,
+                    name: parentPath.split('/').pop(),
+                    items: [],
+                    subfolders: [],
+                    parent: parentPath.includes('/') ? parentPath.split('/').slice(0, -1).join('/') : 'Home'
+                };
+            }
 
-        // 📄 Datei in items[] ablegen
-        if (!folders[parentPath]) {
-            folders[parentPath] = {
-                id: parentPath,
-                name: parentPath.split('/').pop(),
-                items: [],
-                subfolders: [],
-                parent: parentPath.includes('/') ? parentPath.split('/').slice(0, -1).join('/') : 'Home'
-            };
+            folders[parentPath].items.push({
+                id: Date.now() + Math.random(),
+                name,
+                key,
+                size: formatFileSize(entry.Size || 0),
+                date: entry.LastModified?.split('T')[0] || ''
+            });
         }
-
-        folders[parentPath].items.push({
-            id: Date.now() + Math.random(),
-            name,
-            key,
-            size: formatFileSize(entry.Size || 0),
-            date: entry.LastModified?.split('T')[0] || ''
-        });
     });
 
-    // 🔗 Event-Listener initialisieren
+    // 🔗 Events aktivieren
     document.getElementById('logoutBtn').addEventListener('click', handleLogout);
     document.getElementById('gridViewBtn').addEventListener('click', () => switchView('grid'));
     document.getElementById('listViewBtn').addEventListener('click', () => switchView('list'));
@@ -445,7 +444,6 @@ async function init() {
 
     renderContent();
 }
-
 // Karten rendern
 function renderContent() {
     const grid = document.getElementById('contentGrid');
