@@ -92,23 +92,24 @@ let folderToDelete = null;
 // Rename-Modal öffnen
 function editFolder(path, event) {
     event.stopPropagation();
-    const normalizedPath = path.replace(/\/+$/, '') + '/';
-    const f = folders[normalizedPath];
-    if (!f) return;
+    const f = folders[path];
+    if (!f) {
+        UIkit.notification({ message: `Ordner "${path}" nicht gefunden`, status: 'danger' });
+        return;
+    }
 
     document.getElementById('renameOldName').value = f.name;
     document.getElementById('renameNewName').value = f.name;
-    folderToDelete = normalizedPath;
+    folderToDelete = path;
     UIkit.modal('#renameModal').show();
 }
 
 function navigateToFolder(path) {
-    const normalizedPath = path.replace(/\/+$/, '') + '/';
-    if (!folders[normalizedPath]) {
-        UIkit.notification({ message: `Ordner "${normalizedPath}" nicht gefunden`, status: 'danger' });
+    if (!folders[path]) {
+        UIkit.notification({ message: `Ordner "${path}" nicht gefunden`, status: 'danger' });
         return;
     }
-    currentPath = normalizedPath.split('/').filter(Boolean);
+    currentPath = path.split('/');
     renderContent();
 }
 
@@ -352,6 +353,7 @@ async function init() {
     const res = await fetch(`${API_BASE}/list-full`, {
         headers: { Authorization: `Bearer ${token}` }
     });
+
     if (!res.ok) throw new Error('Ordnerstruktur konnte nicht geladen werden');
     const data = await res.json();
 
@@ -369,11 +371,11 @@ async function init() {
         const fullPath = parts.join('/');
         const parentPath = parts.slice(0, -1).join('/') || 'Home';
 
-        // 🧱 Elternstruktur rekursiv sicherstellen
-        for (let i = 1; i < parts.length; i++) {
-            const currentPath = parts.slice(0, i + 1).join('/');
-            const parent = parts.slice(0, i).join('/') || 'Home';
-            const currentName = parts[i];
+        // 🔁 Elternstruktur rekursiv aufbauen
+        for (let i = 1; i <= parts.length; i++) {
+            const segmentPath = parts.slice(0, i).join('/');
+            const parent = parts.slice(0, i - 1).join('/') || 'Home';
+            const segmentName = parts[i - 1];
 
             if (!folders[parent]) {
                 folders[parent] = {
@@ -385,58 +387,45 @@ async function init() {
                 };
             }
 
-            if (!folders[currentPath]) {
-                folders[currentPath] = {
-                    id: currentPath,
-                    name: currentName,
+            if (!folders[segmentPath]) {
+                folders[segmentPath] = {
+                    id: segmentPath,
+                    name: segmentName,
                     items: [],
                     subfolders: [],
                     parent
                 };
             }
 
-            if (!folders[parent].subfolders.includes(currentPath)) {
-                folders[parent].subfolders.push(currentPath);
+            if (!folders[parent].subfolders.includes(segmentPath) && segmentPath !== parent) {
+                folders[parent].subfolders.push(segmentPath);
             }
         }
 
-        // 📁 Datei oder Ordner ergänzen
-        if (isFolder) {
-            if (!folders[fullPath]) {
-                folders[fullPath] = {
-                    id: fullPath,
-                    name,
-                    items: [],
-                    subfolders: [],
-                    parent: parentPath
-                };
-            }
+        // 📁 Ordner verarbeiten
+        if (isFolder) return;
 
-            if (!folders[parentPath].subfolders.includes(fullPath)) {
-                folders[parentPath].subfolders.push(fullPath);
-            }
-        } else {
-            if (!folders[parentPath]) {
-                folders[parentPath] = {
-                    id: parentPath,
-                    name: parentPath.split('/').pop(),
-                    items: [],
-                    subfolders: [],
-                    parent: parentPath.includes('/') ? parentPath.split('/').slice(0, -1).join('/') : 'Home'
-                };
-            }
-
-            folders[parentPath].items.push({
-                id: Date.now() + Math.random(),
-                name,
-                key,
-                size: formatFileSize(entry.Size || 0),
-                date: entry.LastModified?.split('T')[0] || ''
-            });
+        // 📄 Datei in items[] ablegen
+        if (!folders[parentPath]) {
+            folders[parentPath] = {
+                id: parentPath,
+                name: parentPath.split('/').pop(),
+                items: [],
+                subfolders: [],
+                parent: parentPath.includes('/') ? parentPath.split('/').slice(0, -1).join('/') : 'Home'
+            };
         }
+
+        folders[parentPath].items.push({
+            id: Date.now() + Math.random(),
+            name,
+            key,
+            size: formatFileSize(entry.Size || 0),
+            date: entry.LastModified?.split('T')[0] || ''
+        });
     });
 
-    // Event-Listener
+    // 🔗 Event-Listener initialisieren
     document.getElementById('logoutBtn').addEventListener('click', handleLogout);
     document.getElementById('gridViewBtn').addEventListener('click', () => switchView('grid'));
     document.getElementById('listViewBtn').addEventListener('click', () => switchView('list'));
@@ -525,6 +514,10 @@ function createFolderCard(f) {
     return div;
 }
 
+function isMediaFile(name) {
+    return /\.(jpe?g|png|gif|bmp|webp|mp4|webm)$/i.test(name);
+}
+
 function createMediaCard(item) {
     const div = document.createElement('div');
     div.className = 'media-item';
@@ -560,6 +553,10 @@ function createMediaCard(item) {
             const img = div.querySelector(`#${imgId}`);
             img.src = 'icons/fallback-image.png';
         });
+
+    if (!item || item.key.endsWith('/') || !isMediaFile(item.name)) {
+        return document.createComment('Nicht-Medien-Datei oder Ordner wird nicht angezeigt');
+    }
 
     return div;
 }
