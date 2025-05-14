@@ -1,64 +1,5 @@
-// js/media.js
-
-function isMediaFile(name) {
-    return /\.(jpe?g|png|gif|bmp|webp|mp4|webm)$/i.test(name);
-}
-
-async function getSignedFileUrl(key) {
-    const token = getToken();
-    const safeKey = encodeURIComponent(key).replace(/%2F/g, '/');
-
-    const res = await fetch(`${API_BASE}/file/${safeKey}`, {
-        method: 'GET',
-        headers: { Authorization: `Bearer ${token}` },
-        redirect: 'manual',
-        mode: 'cors',
-        cache: 'no-store'
-    });
-
-    if (res.status === 302) return res.headers.get('Location');
-    if (res.ok) return res.url;
-
-    throw new Error(`Presign fehlgeschlagen (${res.status})`);
-}
-
-async function deleteFile(key, e) {
-    e.stopPropagation();
-    const token = getToken();
-
-    const res = await fetch(`${API_BASE}/delete`, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ path: key })
-    });
-
-    if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        UIkit.notification({
-            message: err?.error || 'Löschen fehlgeschlagen',
-            status: 'danger'
-        });
-        return;
-    }
-
-    UIkit.notification({ message: 'Datei gelöscht', status: 'success' });
-    renderContent();
-}
-
-async function downloadFile(key) {
-    try {
-        const url = await getSignedFileUrl(key);
-        window.open(url, '_blank');
-    } catch {
-        UIkit.notification({ message: 'Download fehlgeschlagen', status: 'danger' });
-    }
-}
-
 function createMediaCard(item) {
-    // Nur echte Dateien anzeigen
+    // Nur echte Mediendateien anzeigen
     if (!item || item.key.endsWith('/') || !isMediaFile(item.name)) {
         return document.createComment('Nicht-Medien-Datei oder Ordner wird nicht angezeigt');
     }
@@ -69,8 +10,10 @@ function createMediaCard(item) {
 
     div.innerHTML = `
     <div class="uk-card uk-card-default uk-card-hover uk-overflow-hidden uk-border-rounded">
-      <div class="uk-card-media-top" style="display: flex; align-items: center; justify-content: center; height: 180px; background: #fff">
-        <img id="${imgId}" src="" alt="${item.name}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+      <div class="uk-card-media-top uk-flex uk-flex-center uk-flex-middle" style="height: 180px; background: #fff">
+        <a href="" data-caption="${item.name}" data-type="image" uk-lightbox>
+          <img id="${imgId}" src="icons/loader.svg" loading="lazy" alt="${item.name}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+        </a>
       </div>
       <div class="uk-card-body uk-padding-small">
         <div class="uk-text-truncate" title="${item.name}">
@@ -91,7 +34,9 @@ function createMediaCard(item) {
     getSignedFileUrl(item.key)
         .then(url => {
             const img = div.querySelector(`#${imgId}`);
+            const link = img.closest('a');
             img.src = url;
+            link.href = url;
         })
         .catch(err => {
             console.error('Thumbnail-Fehler:', err);
