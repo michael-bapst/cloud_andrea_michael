@@ -1,7 +1,5 @@
 // js/init.js
 
-const API_BASE = 'https://cloud-backend-stxe.onrender.com';
-
 let folders = {
     'Home': { id: 'Home', name: 'Home', parent: null, items: [], subfolders: [] }
 };
