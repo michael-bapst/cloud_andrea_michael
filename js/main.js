@@ -65,7 +65,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('newFolderForm').addEventListener('submit', handleNewFolder);
     document.getElementById('renameForm').addEventListener('submit', handleRename);
     document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
-    document.getElementById('uploadForm').addEventListener('submit', handleUpload);
+
+    document.getElementById('uploadForm').addEventListener('submit', function (e) {
+        if (typeof handleUpload === 'function') {
+            handleUpload(e);
+        } else {
+            console.warn('handleUpload ist nicht verfügbar.');
+        }
+    });
 
     document.getElementById('breadcrumb').addEventListener('click', e => {
         if (e.target.tagName === 'A') {

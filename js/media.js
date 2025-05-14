@@ -1,4 +1,4 @@
-// 🔓 Funktion global machen (wird von main.js etc. benötigt)
+// Funktion global machen (wird von main.js etc. benötigt)
 window.isMediaFile = function(name) {
     return /\.(jpe?g|png|gif|bmp|webp|mp4|webm)$/i.test(name);
 };
@@ -97,9 +97,7 @@ function createMediaCard(item) {
             link.href = url;
         })
         .catch(err => {
-            console.error('Thumbnail-Fehler:', err);
-            const img = div.querySelector(`#${imgId}`);
-            img.src = 'icons/fallback-image.png'; // Optional entfernen
+            console.warn('Vorschaubild konnte nicht geladen werden:', err.message);
         });
 
     return div;
