@@ -529,22 +529,23 @@ function createMediaCard(item) {
     const div = document.createElement('div');
     div.className = 'media-item';
     const imgId = `img-${Math.random().toString(36).slice(2)}`;
+
     div.innerHTML = `
-    <div class="uk-card uk-card-default uk-card-hover uk-overflow-hidden uk-border-rounded">
-      <div class="uk-card-media-top" style="display: flex; align-items: center; justify-content: center; height: 180px; background: #fff">
-        <img id="${imgId}" src="" alt="${item.name}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+    <div class="uk-card uk-card-default uk-card-hover uk-overflow-hidden uk-border-rounded media-photo-card">
+      <div class="uk-card-media-top media-thumb-container">
+        <img id="${imgId}" src="" alt="${item.name}">
       </div>
-      <div class="uk-card-body uk-padding-small">
+      <div class="uk-card-body uk-padding-small uk-text-small uk-text-break">
         <div class="uk-text-truncate" title="${item.name}">
-          <strong>${item.name}</strong>
+          ${item.name}
         </div>
         <div class="uk-text-meta">${item.size} • ${item.date}</div>
         <div class="uk-margin-top uk-flex uk-flex-between">
           <button class="uk-button uk-button-default uk-button-small" onclick="downloadFile('${item.key}')">
-            <span uk-icon="download"></span> Download
+            <span uk-icon="download"></span>
           </button>
-          <button class="uk-button uk-button-default uk-button-small" onclick="deleteFile('${item.key}', event)">
-            <span uk-icon="trash"></span> Löschen
+          <button class="uk-button uk-button-danger uk-button-small" onclick="deleteFile('${item.key}', event)">
+            <span uk-icon="trash"></span>
           </button>
         </div>
       </div>
@@ -558,7 +559,7 @@ function createMediaCard(item) {
         .catch(err => {
             console.error('Thumbnail-Error:', err);
             const img = div.querySelector(`#${imgId}`);
-            img.src = 'icons/fallback-image.png';
+            img.src = 'https://via.placeholder.com/300x200?text=Fehler'; // funktionierender Fallback
         });
 
     return div;
