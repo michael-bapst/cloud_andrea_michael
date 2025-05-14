@@ -5,14 +5,9 @@ window.isMediaFile = function (name) {
     return /\.(jpe?g|png|gif|bmp|webp|mp4|webm)$/i.test(name);
 };
 
-// 📦 Presigned URL abrufen für Bildanzeige oder Download
-// 📦 Presigned URL abrufen für Bildanzeige oder Download
 async function getSignedFileUrl(key) {
     const token = getToken();
     const apiUrl = `${API_BASE}/file-url?key=${encodeURIComponent(key)}`;
-
-    console.log('[Presign] Key:', key);
-    console.log('[Presign] Request URL:', apiUrl);
 
     const res = await fetch(apiUrl, {
         method: 'GET',
@@ -28,10 +23,6 @@ async function getSignedFileUrl(key) {
     }
 
     const data = await res.json();
-    if (!data.url) {
-        throw new Error("Presign-URL fehlt im Response");
-    }
-
     return data.url;
 }
 
