@@ -19,7 +19,9 @@ function handleLogout() {
 
 async function getSignedFileUrl(key) {
     const token = getToken();
-    const res = await fetch(`${API_BASE}/file/${encodeURIComponent(key)}`, {
+    const safeKey = encodeURIComponent(key).replace(/%2F/g, '/');
+
+    const res = await fetch(`${API_BASE}/file/${safeKey}`, {
         method: 'GET',
         headers: { Authorization: `Bearer ${token}` },
         redirect: 'manual',
@@ -46,18 +48,6 @@ function formatFileSize(bytes) {
 }
 
 // ─────────────── Globale Aktionen ───────────────
-
-// Vorschau öffnen
-function previewMedia(name, url) {
-    const ext = name.split('.').pop().toLowerCase();
-    const isVideo = ['mp4','webm','ogg'].includes(ext);
-    const modal = document.getElementById('previewModal');
-    const container = modal.querySelector('.preview-container');
-    container.innerHTML = isVideo
-        ? `<video controls style="width:100%"><source src="${url}" type="video/${ext}"></video>`
-        : `<img src="${url}" alt="${name}" style="width:100%">`;
-    UIkit.modal(modal).show();
-}
 
 // Datei löschen
 async function deleteFile(key, e) {
@@ -167,10 +157,13 @@ async function handleRename(e) {
     if (!newName || newName === oldName) return;
 
     const token = getToken();
-
+    const currentFullPath = currentPath.length === 0 ? 'Home' : currentPath.join('/');
     let oldPath = null;
+
+    // 🔍 Suche nach vollständigem Pfad statt nur Name
     for (const key in folders) {
-        if (folders[key].name === oldName && folders[key].parent === currentPath.join('/')) {
+        const f = folders[key];
+        if (f.name === oldName && f.parent === currentFullPath) {
             oldPath = key;
             break;
         }
@@ -181,7 +174,6 @@ async function handleRename(e) {
         return;
     }
 
-    // 🧱 Den neuen Pfad auf Basis des alten Pfades erstellen
     const parts = oldPath.split('/');
     parts[parts.length - 1] = newName;
     const newPath = parts.join('/');
@@ -197,18 +189,15 @@ async function handleRename(e) {
 
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        UIkit.notification({
-            message: err?.error || 'Umbenennen fehlgeschlagen',
-            status: 'danger'
-        });
+        UIkit.notification({ message: err?.error || 'Umbenennen fehlgeschlagen', status: 'danger' });
         return;
     }
 
     const f = folders[oldPath];
     folders[newPath] = { ...f, name: newName };
-    const p = f.parent;
-    if (folders[p]) {
-        folders[p].subfolders = folders[p].subfolders.map(n => n === oldPath ? newPath : n);
+    const parent = f.parent;
+    if (folders[parent]) {
+        folders[parent].subfolders = folders[parent].subfolders.map(n => n === oldPath ? newPath : n);
     }
     delete folders[oldPath];
 
@@ -289,24 +278,35 @@ async function handleUpload(e) {
     const fileInput = document.querySelector('#uploadForm input[name="file"]');
     const files = fileInput.files;
     if (!files.length) {
-        UIkit.notification({ message:'Keine Datei gewählt', status:'danger' });
+        UIkit.notification({ message: 'Keine Datei gewählt', status: 'danger' });
         return;
     }
-    const form = new FormData();
-    form.append('file', files[0]);
-    const folderPath = currentPath.join('/')==='Home'?'':currentPath.join('/');
-    form.append('folder', folderPath);
+
     const token = getToken();
-    const res = await fetch(`${API_BASE}/upload`, {
-        method:'POST',
-        headers: { Authorization:`Bearer ${token}` },
-        body: form
-    });
-    if (!res.ok) {
-        const err = await res.json().catch(()=>({}));
-        throw new Error(err.detail || 'Upload fehlgeschlagen');
+    const folderPath = currentPath.length === 0 ? '' : currentPath.join('/');
+
+    for (const file of files) {
+        const form = new FormData();
+        form.append('file', file);
+        form.append('folder', folderPath);
+
+        try {
+            const res = await fetch(`${API_BASE}/upload`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+                body: form
+            });
+
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.detail || 'Upload fehlgeschlagen');
+            }
+        } catch (err) {
+            UIkit.notification({ message: err.message || 'Upload-Fehler', status: 'danger' });
+        }
     }
-    UIkit.notification({ message:'Upload erfolgreich', status:'success' });
+
+    UIkit.notification({ message: 'Upload abgeschlossen', status: 'success' });
     UIkit.modal('#uploadModal').hide();
     fileInput.value = '';
     renderContent();
@@ -508,16 +508,18 @@ function createMediaCard(item) {
     div.className = 'media-item';
     const imgId = `img-${Math.random().toString(36).slice(2)}`;
     div.innerHTML = `
-    <div class="uk-card uk-card-default">
-      <div class="uk-card-media-top" style="height:160px;display:flex;align-items:center;justify-content:center">
-        <img id="${imgId}" src="" alt="${item.name}" style="max-height:100%;max-width:100%;object-fit:contain;">
+    <div class="uk-card uk-card-default uk-card-hover uk-overflow-hidden uk-border-rounded">
+      <div class="uk-card-media-top" style="display: flex; align-items: center; justify-content: center; height: 180px; background: #fff">
+        <img id="${imgId}" src="" alt="${item.name}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
       </div>
-      <div class="uk-card-body">
-        <h3 class="uk-card-title uk-text-truncate" title="${item.name}">${item.name}</h3>
-        <p>${item.size} • ${item.date}</p>
-        <div class="uk-flex uk-flex-between uk-flex-wrap">
+      <div class="uk-card-body uk-padding-small">
+        <div class="uk-text-truncate" title="${item.name}">
+          <strong>${item.name}</strong>
+        </div>
+        <div class="uk-text-meta">${item.size} • ${item.date}</div>
+        <div class="uk-margin-top uk-flex uk-flex-between">
           <button class="uk-button uk-button-default uk-button-small" onclick="downloadFile('${item.key}')">
-            <span uk-icon="download"></span> Herunterladen
+            <span uk-icon="download"></span> Download
           </button>
           <button class="uk-button uk-button-default uk-button-small" onclick="deleteFile('${item.key}', event)">
             <span uk-icon="trash"></span> Löschen
@@ -533,6 +535,8 @@ function createMediaCard(item) {
         })
         .catch(err => {
             console.error('Thumbnail-Error:', err);
+            const img = div.querySelector(`#${imgId}`);
+            img.src = 'icons/fallback-image.png';
         });
 
     return div;

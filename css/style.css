@@ -43,9 +43,10 @@ body {
 .uk-card-media-top img {
     width: 100%;
     height: auto;
-    object-fit: cover;
+    object-fit: contain;
     border-radius: 6px;
     max-height: 180px;
+    background-color: #f4f4f4;
 }
 
 /* Grid-Optimierung */
@@ -165,58 +166,45 @@ body {
     }
 
     #contentGrid.uk-grid-small {
-        grid-template-columns: repeat(2, 1fr);
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
         gap: 12px;
     }
 
-    .media-item .uk-card-media-top {
-        height: 140px;
+    .uk-card-media-top {
+        height: 140px !important;
     }
 
-    .list-view .uk-card-media-top {
-        width: 80px;
-        height: 80px;
+    .uk-card-body {
+        padding: 10px;
+        font-size: 14px;
     }
 
-    .uk-button {
-        padding: 0 15px;
+    .uk-button-small {
+        font-size: 12px;
+        padding: 2px 8px;
     }
 
-    .uk-form-controls input {
-        min-height: 44px;
+    .media-item img {
+        object-fit: cover;
+        max-height: 140px;
     }
 
     .folder-card {
         aspect-ratio: unset;
-        height: auto;
+        min-height: 180px;
     }
-    @media (max-width: 640px) {
-        .folder-card .uk-heading-small {
-            font-size: 16px;
-        }
 
-        .folder-card .uk-text-meta {
-            font-size: 12px;
-        }
-
-        .media-item img {
-            object-fit: cover;
-            max-height: 140px;
-        }
-
-        .folder-card {
-            min-height: 180px;
-        }
+    .folder-card .uk-heading-small {
+        font-size: 16px;
     }
+
+    .folder-card .uk-text-meta {
+        font-size: 12px;
+    }
+
     #backBtnContainer .uk-button {
         font-size: 14px;
         padding: 6px 12px;
-    }
-    .uk-card-media-top img {
-        border-radius: 4px;
-        object-fit: contain;
-        background-color: #f4f4f4;
-        max-height: 160px;
-        max-width: 100%;
     }
 }
