@@ -353,7 +353,6 @@ async function init() {
     const res = await fetch(`${API_BASE}/list-full`, {
         headers: { Authorization: `Bearer ${token}` }
     });
-
     if (!res.ok) throw new Error('Ordnerstruktur konnte nicht geladen werden');
     const data = await res.json();
 
@@ -371,11 +370,11 @@ async function init() {
         const fullPath = parts.join('/');
         const parentPath = parts.slice(0, -1).join('/') || 'Home';
 
-        // 🔁 Elternstruktur rekursiv aufbauen
-        for (let i = 1; i <= parts.length; i++) {
-            const segmentPath = parts.slice(0, i).join('/');
-            const parent = parts.slice(0, i - 1).join('/') || 'Home';
-            const segmentName = parts[i - 1];
+        // 🧱 Elternstruktur rekursiv sicherstellen
+        for (let i = 1; i < parts.length; i++) {
+            const currentPath = parts.slice(0, i + 1).join('/');
+            const parent = parts.slice(0, i).join('/') || 'Home';
+            const currentName = parts[i];
 
             if (!folders[parent]) {
                 folders[parent] = {
@@ -387,45 +386,58 @@ async function init() {
                 };
             }
 
-            if (!folders[segmentPath]) {
-                folders[segmentPath] = {
-                    id: segmentPath,
-                    name: segmentName,
+            if (!folders[currentPath]) {
+                folders[currentPath] = {
+                    id: currentPath,
+                    name: currentName,
                     items: [],
                     subfolders: [],
                     parent
                 };
             }
 
-            if (!folders[parent].subfolders.includes(segmentPath) && segmentPath !== parent) {
-                folders[parent].subfolders.push(segmentPath);
+            if (!folders[parent].subfolders.includes(currentPath)) {
+                folders[parent].subfolders.push(currentPath);
             }
         }
 
-        // 📁 Ordner verarbeiten
-        if (isFolder) return;
+        // 📁 Datei oder Ordner ergänzen
+        if (isFolder) {
+            if (!folders[fullPath]) {
+                folders[fullPath] = {
+                    id: fullPath,
+                    name,
+                    items: [],
+                    subfolders: [],
+                    parent: parentPath
+                };
+            }
 
-        // 📄 Datei in items[] ablegen
-        if (!folders[parentPath]) {
-            folders[parentPath] = {
-                id: parentPath,
-                name: parentPath.split('/').pop(),
-                items: [],
-                subfolders: [],
-                parent: parentPath.includes('/') ? parentPath.split('/').slice(0, -1).join('/') : 'Home'
-            };
+            if (!folders[parentPath].subfolders.includes(fullPath)) {
+                folders[parentPath].subfolders.push(fullPath);
+            }
+        } else {
+            if (!folders[parentPath]) {
+                folders[parentPath] = {
+                    id: parentPath,
+                    name: parentPath.split('/').pop(),
+                    items: [],
+                    subfolders: [],
+                    parent: parentPath.includes('/') ? parentPath.split('/').slice(0, -1).join('/') : 'Home'
+                };
+            }
+
+            folders[parentPath].items.push({
+                id: Date.now() + Math.random(),
+                name,
+                key,
+                size: formatFileSize(entry.Size || 0),
+                date: entry.LastModified?.split('T')[0] || ''
+            });
         }
-
-        folders[parentPath].items.push({
-            id: Date.now() + Math.random(),
-            name,
-            key,
-            size: formatFileSize(entry.Size || 0),
-            date: entry.LastModified?.split('T')[0] || ''
-        });
     });
 
-    // 🔗 Event-Listener initialisieren
+    // Event-Listener
     document.getElementById('logoutBtn').addEventListener('click', handleLogout);
     document.getElementById('gridViewBtn').addEventListener('click', () => switchView('grid'));
     document.getElementById('listViewBtn').addEventListener('click', () => switchView('list'));
