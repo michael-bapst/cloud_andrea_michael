@@ -16,7 +16,7 @@ window.handleUpload = async function (e) {
 
     for (const file of files) {
         const form = new FormData();
-        form.append('file', file);
+        form.append('file', file); // ✅ WICHTIG: kein encodeURIComponent
         form.append('folder', safeFolderPath);
 
         try {
