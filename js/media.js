@@ -6,17 +6,19 @@ window.isMediaFile = function (name) {
 };
 
 // 📦 Presigned URL abrufen für Bildanzeige oder Download
+// 📦 Presigned URL abrufen für Bildanzeige oder Download
 async function getSignedFileUrl(key) {
     const token = getToken();
-    const safeKey = encodeURIComponent(key).replace(/%2F/g, '/');
-    const url = `${API_BASE}/file/${safeKey}`;
+    const apiUrl = `${API_BASE}/file-url?key=${encodeURIComponent(key)}`;
 
     console.log('[Presign] Key:', key);
-    console.log('[Presign] Request:', url);
+    console.log('[Presign] Request URL:', apiUrl);
 
-    const res = await fetch(url, {
+    const res = await fetch(apiUrl, {
         method: 'GET',
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+            Authorization: `Bearer ${token}`
+        },
         mode: 'cors',
         cache: 'no-store'
     });
@@ -27,7 +29,7 @@ async function getSignedFileUrl(key) {
 
     const data = await res.json();
     if (!data.url) {
-        throw new Error("Presign-URL fehlt");
+        throw new Error("Presign-URL fehlt im Response");
     }
 
     return data.url;
