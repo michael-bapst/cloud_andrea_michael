@@ -1,14 +1,22 @@
 // js/media.js
 
-window.isMediaFile = function(name) {
+// 🔓 Unterstützte Dateitypen für Vorschau
+window.isMediaFile = function (name) {
     return /\.(jpe?g|png|gif|bmp|webp|mp4|webm)$/i.test(name);
 };
 
+// 📦 Presigned URL abrufen für Bildanzeige oder Download
 async function getSignedFileUrl(key) {
     const token = getToken();
-    const safeKey = encodeURIComponent(key).replace(/%2F/g, '/');
 
-    const res = await fetch(`${API_BASE}/file/${safeKey}`, {
+    // Sicherstellen, dass Key URL-kompatibel ist, aber Pfadtrennung bleibt erhalten
+    const safeKey = encodeURIComponent(key).replace(/%2F/g, '/');
+    const url = `${API_BASE}/file/${safeKey}`;
+
+    console.log('[Presign] Request für:', key);
+    console.log('[Presign] API-Aufruf:', url);
+
+    const res = await fetch(url, {
         method: 'GET',
         headers: { Authorization: `Bearer ${token}` },
         redirect: 'manual',
@@ -22,6 +30,7 @@ async function getSignedFileUrl(key) {
     throw new Error(`Presign fehlgeschlagen (${res.status})`);
 }
 
+// 🗑 Datei löschen
 async function deleteFile(key, e) {
     e.stopPropagation();
     const token = getToken();
@@ -48,15 +57,18 @@ async function deleteFile(key, e) {
     renderContent();
 }
 
+// ⬇️ Datei herunterladen
 async function downloadFile(key) {
     try {
         const url = await getSignedFileUrl(key);
         window.open(url, '_blank');
-    } catch {
+    } catch (err) {
         UIkit.notification({ message: 'Download fehlgeschlagen', status: 'danger' });
+        console.warn('Download-Fehler:', err.message);
     }
 }
 
+// 📷 Medienkarte (Vorschau im Grid)
 function createMediaCard(item) {
     if (!item || !item.name || item.key.endsWith('/') || !isMediaFile(item.name)) {
         return document.createComment('Nicht-Medien-Datei oder Ordner wird nicht angezeigt');
@@ -99,6 +111,7 @@ function createMediaCard(item) {
         </div>
     `;
 
+    // Hover-Effekt
     container.addEventListener('mouseenter', () => {
         container.querySelector('.media-actions').style.opacity = 1;
     });
@@ -106,17 +119,17 @@ function createMediaCard(item) {
         container.querySelector('.media-actions').style.opacity = 0;
     });
 
+    // 🖼 Presigned Image laden
     getSignedFileUrl(item.key)
         .then(url => {
             const img = container.querySelector(`#${imgId}`);
             const anchor = container.querySelector(`#${anchorId}`);
             img.src = url;
-            anchor.href = url; // 💡 für Lightbox!
+            anchor.href = url;
         })
         .catch(err => {
-            console.warn('Vorschaubild konnte nicht geladen werden:', err.message);
+            console.warn('❌ Vorschaubild konnte nicht geladen werden:', err.message);
         });
 
     return container;
 }
-
