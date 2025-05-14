@@ -1,6 +1,64 @@
+// 🔓 Funktion global machen (wird von main.js etc. benötigt)
+window.isMediaFile = function(name) {
+    return /\.(jpe?g|png|gif|bmp|webp|mp4|webm)$/i.test(name);
+};
+
+async function getSignedFileUrl(key) {
+    const token = getToken();
+    const safeKey = encodeURIComponent(key).replace(/%2F/g, '/');
+
+    const res = await fetch(`${API_BASE}/file/${safeKey}`, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${token}` },
+        redirect: 'manual',
+        mode: 'cors',
+        cache: 'no-store'
+    });
+
+    if (res.status === 302) return res.headers.get('Location');
+    if (res.ok) return res.url;
+
+    throw new Error(`Presign fehlgeschlagen (${res.status})`);
+}
+
+async function deleteFile(key, e) {
+    e.stopPropagation();
+    const token = getToken();
+
+    const res = await fetch(`${API_BASE}/delete`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ path: key })
+    });
+
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        UIkit.notification({
+            message: err?.error || 'Löschen fehlgeschlagen',
+            status: 'danger'
+        });
+        return;
+    }
+
+    UIkit.notification({ message: 'Datei gelöscht', status: 'success' });
+    renderContent();
+}
+
+async function downloadFile(key) {
+    try {
+        const url = await getSignedFileUrl(key);
+        window.open(url, '_blank');
+    } catch {
+        UIkit.notification({ message: 'Download fehlgeschlagen', status: 'danger' });
+    }
+}
+
 function createMediaCard(item) {
-    // Nur echte Mediendateien anzeigen
-    if (!item || item.key.endsWith('/') || !isMediaFile(item.name)) {
+    // 🔍 Nur echte Mediendateien anzeigen
+    if (!item || !item.name || item.key.endsWith('/') || !isMediaFile(item.name)) {
         return document.createComment('Nicht-Medien-Datei oder Ordner wird nicht angezeigt');
     }
 
@@ -41,7 +99,7 @@ function createMediaCard(item) {
         .catch(err => {
             console.error('Thumbnail-Fehler:', err);
             const img = div.querySelector(`#${imgId}`);
-            img.src = 'icons/fallback-image.png';
+            img.src = 'icons/fallback-image.png'; // Optional entfernen
         });
 
     return div;
