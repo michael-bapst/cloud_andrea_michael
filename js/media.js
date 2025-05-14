@@ -64,38 +64,29 @@ function createMediaCard(item) {
     }
 
     const div = document.createElement('div');
-    div.className = 'media-item';
+    div.className = 'uk-flex uk-flex-column uk-margin-small';
+
     const imgId = `img-${Math.random().toString(36).slice(2)}`;
 
     div.innerHTML = `
-    <div class="uk-card uk-card-default uk-card-hover uk-overflow-hidden uk-border-rounded">
-      <div class="uk-card-media-top uk-flex uk-flex-center uk-flex-middle" style="height: 180px; background: #fff">
-        <a href="" data-caption="${item.name}" data-type="image" uk-lightbox>
-          <img id="${imgId}" src="" loading="lazy" alt="${item.name}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
-        </a>
-      </div>
-      <div class="uk-card-body uk-padding-small">
-        <div class="uk-text-truncate" title="${item.name}">
-          <strong>${item.name}</strong>
+        <div class="uk-inline">
+            <img id="${imgId}" alt="${item.name}" style="max-width: 100%; border-radius: 8px; object-fit: contain; background: #fff;" />
+            <div class="uk-position-top-right uk-overlay uk-overlay-default uk-padding-small">
+                <button class="uk-icon-button" uk-icon="download" onclick="downloadFile('${item.key}')"></button>
+                <button class="uk-icon-button" uk-icon="trash" onclick="deleteFile('${item.key}', event)"></button>
+            </div>
+        </div>
+        <div class="uk-text-small uk-text-truncate uk-margin-small-top" title="${item.name}">
+            ${item.name}
         </div>
         <div class="uk-text-meta">${item.size} • ${item.date}</div>
-        <div class="uk-margin-top uk-flex uk-flex-between">
-          <button class="uk-button uk-button-default uk-button-small" onclick="downloadFile('${item.key}')">
-            <span uk-icon="download"></span> Download
-          </button>
-          <button class="uk-button uk-button-default uk-button-small" onclick="deleteFile('${item.key}', event)">
-            <span uk-icon="trash"></span> Löschen
-          </button>
-        </div>
-      </div>
-    </div>`;
+    `;
 
     getSignedFileUrl(item.key)
         .then(url => {
             const img = div.querySelector(`#${imgId}`);
-            const link = img.closest('a');
+            const link = div.querySelector(`#${imgId}`).closest('img');
             img.src = url;
-            link.href = url;
         })
         .catch(err => {
             console.warn('❌ Vorschaubild konnte nicht geladen werden:', err.message);
@@ -103,3 +94,4 @@ function createMediaCard(item) {
 
     return div;
 }
+

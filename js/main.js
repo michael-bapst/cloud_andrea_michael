@@ -3,9 +3,10 @@
 function renderContent() {
     const grid = document.getElementById('contentGrid');
     grid.innerHTML = '';
-    grid.className = viewMode === 'grid'
-        ? 'uk-grid-small uk-child-width-1-1 uk-child-width-1-2@s uk-child-width-1-3@m uk-child-width-1-4@l'
-        : 'uk-grid-small uk-child-width-1-1 list-view';
+
+    const container = document.createElement('div');
+    container.className = 'uk-grid-small uk-child-width-1-2@s uk-child-width-1-3@m uk-child-width-1-4@l';
+    container.setAttribute('uk-grid', '');
 
     const fullCurrentPath = currentPath.length === 0 ? 'Home' : currentPath.join('/');
     const data = folders[fullCurrentPath];
@@ -32,7 +33,9 @@ function renderContent() {
     data.subfolders.forEach(n => frag.appendChild(createFolderCard(folders[n])));
     data.items.forEach(it => frag.appendChild(createMediaCard(it)));
 
-    grid.appendChild(frag);
+    container.appendChild(frag);
+    grid.appendChild(container);
+
     updateBreadcrumb();
 }
 
