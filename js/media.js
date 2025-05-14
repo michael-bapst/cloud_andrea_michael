@@ -8,26 +8,29 @@ window.isMediaFile = function (name) {
 // 📦 Presigned URL abrufen für Bildanzeige oder Download
 async function getSignedFileUrl(key) {
     const token = getToken();
-
-    // Sicherstellen, dass Key URL-kompatibel ist, aber Pfadtrennung bleibt erhalten
     const safeKey = encodeURIComponent(key).replace(/%2F/g, '/');
     const url = `${API_BASE}/file/${safeKey}`;
 
-    console.log('[Presign] Request für:', key);
-    console.log('[Presign] API-Aufruf:', url);
+    console.log('[Presign] Key:', key);
+    console.log('[Presign] Request:', url);
 
     const res = await fetch(url, {
         method: 'GET',
         headers: { Authorization: `Bearer ${token}` },
-        redirect: 'manual',
         mode: 'cors',
         cache: 'no-store'
     });
 
-    if (res.status === 302) return res.headers.get('Location');
-    if (res.ok) return res.url;
+    if (!res.ok) {
+        throw new Error(`Presign fehlgeschlagen (${res.status})`);
+    }
 
-    throw new Error(`Presign fehlgeschlagen (${res.status})`);
+    const data = await res.json();
+    if (!data.url) {
+        throw new Error("Presign-URL fehlt");
+    }
+
+    return data.url;
 }
 
 // 🗑 Datei löschen
@@ -111,7 +114,6 @@ function createMediaCard(item) {
         </div>
     `;
 
-    // Hover-Effekt
     container.addEventListener('mouseenter', () => {
         container.querySelector('.media-actions').style.opacity = 1;
     });
@@ -119,7 +121,6 @@ function createMediaCard(item) {
         container.querySelector('.media-actions').style.opacity = 0;
     });
 
-    // 🖼 Presigned Image laden
     getSignedFileUrl(item.key)
         .then(url => {
             const img = container.querySelector(`#${imgId}`);
