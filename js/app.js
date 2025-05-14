@@ -497,7 +497,6 @@ function renderContent() {
 
 function createFolderCard(f) {
     const date = new Date().toLocaleDateString('de-DE');
-    const safeId = encodeURIComponent(f.id);
 
     const div = document.createElement('div');
     div.className = 'media-item folder-item uk-width-1-1';
@@ -511,13 +510,13 @@ function createFolderCard(f) {
           <div class="uk-text-meta">${date}</div>
         </div>
         <div class="folder-buttons">
-          <button class="uk-button uk-button-default uk-button-small" onclick="navigateToFolder(decodeURIComponent('${safeId}'))">
+          <button class="uk-button uk-button-default uk-button-small" onclick="navigateToFolder('${f.id}')">
             <span uk-icon="folder"></span> Öffnen
           </button>
-          <button class="uk-button uk-button-default uk-button-small" onclick="editFolder(decodeURIComponent('${safeId}'), event)">
+          <button class="uk-button uk-button-default uk-button-small" onclick="editFolder('${f.id}', event)">
             <span uk-icon="pencil"></span> Bearbeiten
           </button>
-          <button class="uk-button uk-button-default uk-button-small" onclick="deleteFolder(decodeURIComponent('${safeId}'), event)">
+          <button class="uk-button uk-button-default uk-button-small" onclick="deleteFolder('${f.id}', event)">
             <span uk-icon="trash"></span> Löschen
           </button>
         </div>
