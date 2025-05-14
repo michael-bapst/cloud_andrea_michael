@@ -92,22 +92,37 @@ let folderToDelete = null;
 // Rename-Modal öffnen
 function editFolder(path, event) {
     event.stopPropagation();
-    const f = folders[path];
+    const normalizedPath = path.replace(/\/+$/, '') + '/';
+    const f = folders[normalizedPath];
+    if (!f) return;
+
     document.getElementById('renameOldName').value = f.name;
     document.getElementById('renameNewName').value = f.name;
-    folderToDelete = path;
+    folderToDelete = normalizedPath;
     UIkit.modal('#renameModal').show();
 }
+
+function navigateToFolder(path) {
+    const normalizedPath = path.replace(/\/+$/, '') + '/';
+    if (!folders[normalizedPath]) {
+        UIkit.notification({ message: `Ordner "${normalizedPath}" nicht gefunden`, status: 'danger' });
+        return;
+    }
+    currentPath = normalizedPath.split('/').filter(Boolean);
+    renderContent();
+}
+
 
 function deleteFolder(path, event) {
     event.stopPropagation();
 
-    const normalizedPath = path.endsWith('/') ? path : path + '/';
+    const normalizedPath = path.replace(/\/+$/, '') + '/';
 
     folderToDelete = normalizedPath;
     const f = folders[normalizedPath];
 
     if (!f) {
+        console.warn('Nicht gefunden:', normalizedPath, Object.keys(folders));
         UIkit.notification({ message: `Ordner "${normalizedPath}" nicht gefunden`, status: 'danger' });
         return;
     }
@@ -115,7 +130,6 @@ function deleteFolder(path, event) {
     document.getElementById('deleteConfirmText').textContent = `Ordner "${f.name}" wirklich löschen?`;
     UIkit.modal('#deleteModal').show();
 }
-
 
 // Ordner wirklich löschen
 async function confirmDelete() {
@@ -562,15 +576,6 @@ function updateBreadcrumb() {
             ? `<li><span>${p}</span></li>`
             : `<li><a href="#">${p}</a></li>`
     ).join('');
-}
-
-function navigateToFolder(path) {
-    if (!folders[path]) {
-        UIkit.notification({ message: `Ordner "${path}" nicht gefunden`, status: 'danger' });
-        return;
-    }
-    currentPath = path.split('/');
-    renderContent();
 }
 
 function navigateToPath(path) {
