@@ -1,5 +1,3 @@
-// js/main.js
-
 function renderContent() {
     const grid = document.getElementById('contentGrid');
     grid.innerHTML = '';
@@ -60,7 +58,6 @@ function switchView(mode) {
     renderContent();
 }
 
-// 🔗 Events binden
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('logoutBtn').addEventListener('click', handleLogout);
     document.getElementById('gridViewBtn').addEventListener('click', () => switchView('grid'));
@@ -84,5 +81,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 .indexOf(e.target.parentElement);
             navigateToPath(currentPath.slice(0, idx + 1));
         }
+    });
+
+    // ✅ NEU: Tabs (Fotos / Alben / Dateien)
+    document.querySelectorAll('#viewTabs li').forEach(li => {
+        li.addEventListener('click', () => {
+            const view = li.dataset.view;
+            switchViewTo(view);
+        });
     });
 });

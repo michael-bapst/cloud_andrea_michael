@@ -1,5 +1,3 @@
-// js/upload.js
-
 window.handleUpload = async function (e) {
     e.preventDefault();
 
@@ -11,13 +9,16 @@ window.handleUpload = async function (e) {
     }
 
     const token = getToken();
-    const folderPath = currentPath.length === 0 ? '' : currentPath.join('/');
-    const safeFolderPath = folderPath.replace(/\/+$/, '');
+
+    // ✅ NEU: Zielpfad abhängig von activeView
+    let targetPath = currentPath.length === 0 ? '' : currentPath.join('/');
+    if (activeView === 'dateien') targetPath = 'files';
+    if (activeView === 'fotos') targetPath = ''; // direkt in Root
 
     for (const file of files) {
         const form = new FormData();
-        form.append('file', file); // ✅ WICHTIG: kein encodeURIComponent
-        form.append('folder', safeFolderPath);
+        form.append('file', file);
+        form.append('folder', targetPath);
 
         try {
             const res = await fetch(`${API_BASE}/upload`, {

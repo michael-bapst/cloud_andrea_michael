@@ -33,6 +33,15 @@
   </div>
 </div>
 
+<!-- Ansichtsauswahl -->
+<div class="uk-container uk-margin-top">
+  <ul class="uk-subnav uk-subnav-pill uk-flex-center" id="viewTabs">
+    <li class="uk-active" data-view="fotos"><a href="#">Fotos</a></li>
+    <li data-view="alben"><a href="#">Alben</a></li>
+    <li data-view="dateien"><a href="#">Dateien</a></li>
+  </ul>
+</div>
+
 <div class="uk-container uk-margin-small-top">
   <ul class="uk-breadcrumb" id="breadcrumb">
     <li><a href="#">Home</a></li>
@@ -52,8 +61,6 @@
 
 <div class="uk-container uk-margin-medium-top">
   <div id="contentGrid"></div>
-</div>
-  </div>
 </div>
 
 <!-- Upload Modal -->
@@ -131,6 +138,7 @@
 <script src="js/media.js"></script>
 <script src="js/upload.js"></script>
 <script src="js/main.js"></script>
+<script src="js/views.js"></script>
 
 <script>
   const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');

@@ -1,5 +1,3 @@
-// js/init.js
-
 let folders = {
     'Home': { id: 'Home', name: 'Home', parent: null, items: [], subfolders: [] }
 };
@@ -91,5 +89,6 @@ async function init() {
         }
     });
 
-    renderContent();
+    // ✅ NEU: Start mit "Fotos"-Ansicht
+    switchViewTo('fotos');
 }
