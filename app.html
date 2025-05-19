@@ -22,22 +22,21 @@
 
 <!-- Hauptbereich -->
 <div class="uk-container uk-margin-small-top">
-  <ul class="uk-breadcrumb" id="breadcrumb">
-    <li><a href="#">Home</a></li>
-  </ul>
+  <h2 id="viewHeading" class="uk-heading-small uk-text-primary uk-margin-remove-top uk-margin-small-bottom">Fotos</h2>
 
-  <div id="backBtnContainer" class="uk-margin-small-bottom"></div>
-
-  <!-- Ansichtsspezifische Buttons -->
-  <div class="uk-button-group">
-    <button class="uk-button uk-button-default" id="gridViewBtn"><span uk-icon="grid"></span></button>
-    <button class="uk-button uk-button-default" id="listViewBtn"><span uk-icon="list"></span></button>
+  <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-small-bottom">
+    <div id="backBtnContainer"></div>
+    <div class="uk-button-group" id="viewModeToggles">
+      <button class="uk-button uk-button-default" id="gridViewBtn"><span uk-icon="grid"></span></button>
+      <button class="uk-button uk-button-default" id="listViewBtn"><span uk-icon="list"></span></button>
+    </div>
   </div>
-  <button class="uk-button uk-button-primary uk-margin-small-left" uk-toggle="target: #newFolderModal" id="newFolderBtn">
+
+  <button class="uk-button uk-button-primary uk-margin-small-bottom" uk-toggle="target: #newFolderModal" id="newFolderBtn">
     <span uk-icon="folder"></span> Neuer Ordner
   </button>
 
-  <div class="uk-margin-top" id="contentGrid"></div>
+  <div id="contentGrid" class="uk-margin-top"></div>
 </div>
 
 <!-- Upload Modal -->
@@ -109,27 +108,16 @@
   </div>
 </div>
 
-<!-- FAB: Bild hochladen (Fotos) -->
-<button class="uk-button uk-button-primary uk-position-fixed"
-        style="bottom: 80px; right: 20px; z-index: 1000; display: none;"
-        uk-toggle="target: #uploadModal"
-        id="fabFotos">
+<!-- FABs -->
+<button class="uk-button uk-button-primary uk-position-fixed" style="bottom: 80px; right: 20px; z-index: 1000; display: none;" uk-toggle="target: #uploadModal" id="fabFotos">
   <span uk-icon="plus"></span> Bild hochladen
 </button>
 
-<!-- FAB: Neuer Ordner (Alben) -->
-<button class="uk-button uk-button-primary uk-position-fixed"
-        style="bottom: 80px; right: 20px; z-index: 1000; display: none;"
-        uk-toggle="target: #newFolderModal"
-        id="fabAlben">
+<button class="uk-button uk-button-primary uk-position-fixed" style="bottom: 80px; right: 20px; z-index: 1000; display: none;" uk-toggle="target: #newFolderModal" id="fabAlben">
   <span uk-icon="folder"></span> Neuer Ordner
 </button>
 
-<!-- FAB: Datei hinzufügen (Dateien) -->
-<button class="uk-button uk-button-primary uk-position-fixed"
-        style="bottom: 80px; right: 20px; z-index: 1000; display: none;"
-        uk-toggle="target: #uploadModal"
-        id="fabDateien">
+<button class="uk-button uk-button-primary uk-position-fixed" style="bottom: 80px; right: 20px; z-index: 1000; display: none;" uk-toggle="target: #uploadModal" id="fabDateien">
   <span uk-icon="plus"></span> Datei hinzufügen
 </button>
 

@@ -3,18 +3,32 @@ let activeView = 'fotos';
 function switchViewTo(view) {
     activeView = view;
 
+    // 🔄 Aktive Tab visuell markieren
     document.querySelectorAll('#viewTabs li').forEach(li =>
         li.classList.toggle('uk-active', li.dataset.view === view)
     );
 
-    const folderBtn = document.getElementById('newFolderBtn');
-    if (folderBtn) folderBtn.style.display = 'none';
+    // 🔄 Überschrift setzen
+    const heading = document.getElementById('viewHeading');
+    if (heading) {
+        if (view === 'fotos') heading.textContent = 'Fotos';
+        else if (view === 'alben') heading.textContent = 'Alben';
+        else if (view === 'dateien') heading.textContent = 'Dateien';
+    }
 
-    // Floating Action Buttons je nach Ansicht steuern
-    document.getElementById('fabFotos').style.display   = view === 'fotos'   ? 'block' : 'none';
-    document.getElementById('fabAlben').style.display   = view === 'alben'   ? 'block' : 'none';
+    // 🔄 FAB-Buttons sichtbar machen
+    document.getElementById('fabFotos').style.display = view === 'fotos' ? 'block' : 'none';
+    document.getElementById('fabAlben').style.display = view === 'alben' ? 'block' : 'none';
     document.getElementById('fabDateien').style.display = view === 'dateien' ? 'block' : 'none';
 
+    // 🔄 Ansichtsspezifische UI-Buttons
+    const toggleGroup = document.getElementById('viewModeToggles');
+    const folderBtn = document.getElementById('newFolderBtn');
+
+    toggleGroup.style.display = (view === 'alben' || view === 'dateien') ? 'flex' : 'none';
+    folderBtn.style.display = view === 'alben' ? 'inline-flex' : 'none';
+
+    // 🔄 View wechseln
     if (view === 'fotos') {
         currentPath = [];
         renderFotos();
