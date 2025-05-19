@@ -3,7 +3,6 @@ let folders = {
 };
 
 let currentPath = [];
-let viewMode = 'grid';
 
 document.addEventListener('DOMContentLoaded', init);
 
