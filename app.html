@@ -24,18 +24,16 @@
 <div class="uk-container uk-margin-small-top">
   <h2 id="viewHeading" class="uk-heading-small uk-text-primary uk-margin-remove-top uk-margin-small-bottom">Fotos</h2>
 
-  <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-small-bottom">
-    <div id="backBtnContainer"></div>
-    <div class="uk-button-group" id="viewModeToggles">
+  <!-- Ansichtsschalter (nur bei Alben/Dateien sichtbar) -->
+  <div class="uk-flex uk-flex-left uk-margin-small-bottom" id="viewModeToggles" style="display: none;">
+    <div class="uk-button-group">
       <button class="uk-button uk-button-default" id="gridViewBtn"><span uk-icon="grid"></span></button>
       <button class="uk-button uk-button-default" id="listViewBtn"><span uk-icon="list"></span></button>
     </div>
   </div>
 
-  <button class="uk-button uk-button-primary uk-margin-small-bottom" uk-toggle="target: #newFolderModal" id="newFolderBtn">
-    <span uk-icon="folder"></span> Neuer Ordner
-  </button>
-
+  <!-- Inhalt -->
+  <div id="backBtnContainer" class="uk-margin-small-bottom"></div>
   <div id="contentGrid" class="uk-margin-top"></div>
 </div>
 

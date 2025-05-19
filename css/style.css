@@ -124,3 +124,7 @@ body {
         padding: 2px 8px;
     }
 }
+/* style.css */
+.uk-position-fixed.uk-button {
+    margin-bottom: 60px !important; /* über Footer-Navigation */
+}

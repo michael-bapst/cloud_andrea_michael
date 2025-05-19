@@ -65,11 +65,16 @@ function switchViewTo(view) {
     document.getElementById('fabAlben')?.style.setProperty('display', view === 'alben' ? 'block' : 'none');
     document.getElementById('fabDateien')?.style.setProperty('display', view === 'dateien' ? 'block' : 'none');
 
-    // Ansichtsschalter & Button (nur bei Alben / Dateien)
+    // Ansichtsschalter sichtbar bei alben/dateien
     const toggleGroup = document.getElementById('viewModeToggles');
+    if (toggleGroup) {
+        toggleGroup.style.display = (view === 'alben' || view === 'dateien') ? 'flex' : 'none';
+    }
+
     const folderBtn = document.getElementById('newFolderBtn');
-    if (toggleGroup) toggleGroup.style.display = (view === 'alben' || view === 'dateien') ? 'flex' : 'none';
-    if (folderBtn) folderBtn.style.display = view === 'alben' ? 'inline-flex' : 'none';
+    if (folderBtn) {
+        folderBtn.style.display = 'none'; // sicherheitshalber verstecken
+    }
 
     // Inhalte laden
     if (view === 'fotos') {
