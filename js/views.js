@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function switchViewTo(view) {
+    // Nur beim Wechsel wirklich resetten
     if (view !== activeView) {
         if (view === 'fotos' || view === 'alben') {
             currentPath = [];
@@ -80,7 +81,7 @@ function switchViewTo(view) {
         renderFotos();
     } else if (view === 'alben') {
         if (currentPath.length === 0) {
-            renderContent(); // zeigt Alben-Root
+            renderContent();
         } else {
             renderFotos(); // zeigt Bilder im Album
         }
@@ -159,7 +160,7 @@ function renderContent() {
     container.appendChild(frag);
     grid.appendChild(container);
 
-    updateBreadcrumb(); // ✅ nicht switchViewTo!
+    updateBreadcrumb(); // KEIN switchViewTo() hier!
 }
 
 function switchView(mode) {
