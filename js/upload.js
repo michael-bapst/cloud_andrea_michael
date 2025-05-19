@@ -1,3 +1,6 @@
+const allowedImages = /\.(jpe?g|png|gif|bmp|webp)$/i;
+const allowedDocs = /\.(pdf|zip|docx?|xlsx?|txt|json)$/i;
+
 window.handleUpload = async function (e) {
     e.preventDefault();
 
@@ -9,13 +12,21 @@ window.handleUpload = async function (e) {
     }
 
     const token = getToken();
-
-    // ✅ NEU: Zielpfad abhängig von activeView
     let targetPath = currentPath.length === 0 ? '' : currentPath.join('/');
+    if (activeView === 'fotos') targetPath = '';
     if (activeView === 'dateien') targetPath = 'files';
-    if (activeView === 'fotos') targetPath = ''; // direkt in Root
 
     for (const file of files) {
+        if (activeView === 'fotos' && !allowedImages.test(file.name)) {
+            UIkit.notification({ message: 'Nur Bilder im Bereich „Fotos“ erlaubt', status: 'warning' });
+            continue;
+        }
+
+        if (activeView === 'dateien' && !allowedDocs.test(file.name)) {
+            UIkit.notification({ message: 'Nur Dokumente im Bereich „Dateien“ erlaubt', status: 'warning' });
+            continue;
+        }
+
         const form = new FormData();
         form.append('file', file);
         form.append('folder', targetPath);

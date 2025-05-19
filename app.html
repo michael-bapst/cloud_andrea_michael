@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="de">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -17,50 +19,25 @@
 </head>
 
 <body>
-<div class="uk-container uk-margin-small-top uk-text-center">
-  <h1 class="uk-text-bold uk-text-large">Andrea Lio Michael</h1>
-  <div class="uk-margin-small-top uk-flex uk-flex-center uk-flex-middle uk-child-width-auto" uk-grid>
-    <div>
-      <button class="uk-button uk-button-primary" uk-toggle="target: #uploadModal">
-        <span uk-icon="upload"></span> Upload
-      </button>
-    </div>
-    <div>
-      <button class="uk-button uk-button-default" id="logoutBtn">
-        <span uk-icon="sign-out"></span> Logout
-      </button>
-    </div>
-  </div>
-</div>
 
-<!-- Ansichtsauswahl -->
-<div class="uk-container uk-margin-top">
-  <ul class="uk-subnav uk-subnav-pill uk-flex-center" id="viewTabs">
-    <li class="uk-active" data-view="fotos"><a href="#">Fotos</a></li>
-    <li data-view="alben"><a href="#">Alben</a></li>
-    <li data-view="dateien"><a href="#">Dateien</a></li>
-  </ul>
-</div>
-
+<!-- Hauptbereich -->
 <div class="uk-container uk-margin-small-top">
   <ul class="uk-breadcrumb" id="breadcrumb">
     <li><a href="#">Home</a></li>
   </ul>
-</div>
 
-<div class="uk-container uk-margin-small-top">
   <div id="backBtnContainer" class="uk-margin-small-bottom"></div>
+
+  <!-- Ansichtsspezifische Buttons -->
   <div class="uk-button-group">
     <button class="uk-button uk-button-default" id="gridViewBtn"><span uk-icon="grid"></span></button>
     <button class="uk-button uk-button-default" id="listViewBtn"><span uk-icon="list"></span></button>
   </div>
-  <button class="uk-button uk-button-primary uk-margin-small-left" uk-toggle="target: #newFolderModal">
+  <button class="uk-button uk-button-primary uk-margin-small-left" uk-toggle="target: #newFolderModal" id="newFolderBtn">
     <span uk-icon="folder"></span> Neuer Ordner
   </button>
-</div>
 
-<div class="uk-container uk-margin-medium-top">
-  <div id="contentGrid"></div>
+  <div class="uk-margin-top" id="contentGrid"></div>
 </div>
 
 <!-- Upload Modal -->
@@ -130,6 +107,21 @@
       <button class="uk-button uk-button-default uk-modal-close" type="button">Abbrechen</button>
     </div>
   </div>
+</div>
+
+<!-- Floating Upload Button -->
+<button class="uk-button uk-button-primary uk-position-fixed" style="bottom: 80px; right: 20px; z-index: 1000;" uk-toggle="target: #uploadModal" id="fabUpload">
+  <span uk-icon="plus"></span> Datei hinzufügen
+</button>
+
+<!-- Bottom Navigation -->
+<div class="uk-position-fixed uk-position-bottom uk-width-1-1 uk-background-default uk-box-shadow-top" style="z-index:999;">
+  <ul class="uk-subnav uk-subnav-pill uk-flex-center uk-child-width-expand" id="viewTabs" style="padding: 10px 0; margin: 0;">
+    <li class="uk-active" data-view="fotos"><a href="#"><span uk-icon="image"></span><div class="uk-text-small">Fotos</div></a></li>
+    <li data-view="alben"><a href="#"><span uk-icon="folder"></span><div class="uk-text-small">Alben</div></a></li>
+    <li data-view="dateien"><a href="#"><span uk-icon="file-text"></span><div class="uk-text-small">Dateien</div></a></li>
+    <li><a href="#" id="logoutBtn"><span uk-icon="sign-out"></span><div class="uk-text-small">Logout</div></a></li>
+  </ul>
 </div>
 
 <script src="js/helpers.js"></script>
