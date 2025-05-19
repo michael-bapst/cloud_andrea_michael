@@ -13,12 +13,15 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('gridViewBtn')?.addEventListener('click', () => switchView('grid'));
     document.getElementById('listViewBtn')?.addEventListener('click', () => switchView('list'));
     document.getElementById('logoutBtn')?.addEventListener('click', handleLogout);
+
     document.getElementById('uploadForm')?.addEventListener('submit', e => {
         if (typeof handleUpload === 'function') handleUpload(e);
     });
+
     document.getElementById('newFolderForm')?.addEventListener('submit', handleNewFolder);
     document.getElementById('renameForm')?.addEventListener('submit', handleRename);
     document.getElementById('confirmDeleteBtn')?.addEventListener('click', confirmDelete);
+
     document.getElementById('breadcrumb')?.addEventListener('click', e => {
         if (e.target.tagName === 'A') {
             e.preventDefault();
@@ -39,26 +42,41 @@ function switchViewTo(view) {
     );
 
     const heading = document.getElementById('viewHeading');
+    const toggleGroup = document.getElementById('viewModeToggles');
+    const fabFotos = document.getElementById('fabFotos');
+    const fabAlben = document.getElementById('fabAlben');
+    const fabDateien = document.getElementById('fabDateien');
+
+    const isInAlbumRoot = view === 'alben' && currentPath.length === 0;
+    const isInAlbumFolder = view === 'alben' && currentPath.length > 0;
+
+    // Setze dynamischen Titel
     if (heading) {
         heading.textContent =
             view === 'fotos' ? 'Fotos' :
-                view === 'alben' ? 'Alben' :
-                    view === 'dateien' ? 'Dateien' : '';
+                isInAlbumFolder ? `Alben / ${currentPath.at(-1)}` :
+                    view === 'alben' ? 'Alben' :
+                        view === 'dateien' ? 'Dateien' : '';
     }
 
-    document.getElementById('fabFotos')?.style.setProperty('display', view === 'fotos' ? 'block' : 'none');
-    document.getElementById('fabAlben')?.style.setProperty('display', view === 'alben' ? 'block' : 'none');
-    document.getElementById('fabDateien')?.style.setProperty('display', view === 'dateien' ? 'block' : 'none');
+    // FABs
+    fabFotos.style.display = view === 'fotos' ? 'block' : 'none';
+    fabAlben.style.display = isInAlbumRoot ? 'block' : 'none';
+    fabDateien.style.display = view === 'dateien' ? 'block' : 'none';
 
-    const toggleGroup = document.getElementById('viewModeToggles');
-    if (toggleGroup) toggleGroup.style.display = (view === 'alben' || view === 'dateien') ? 'flex' : 'none';
+    // Ansichtsschalter (Grid/List)
+    toggleGroup.style.display = (view === 'alben' || view === 'dateien') ? 'flex' : 'none';
 
+    // Inhalt laden
     if (view === 'fotos') {
         currentPath = [];
         renderFotos();
     } else if (view === 'alben') {
-        currentPath = [];
-        renderContent();
+        if (currentPath.length === 0) {
+            renderContent(); // zeigt Ordner
+        } else {
+            renderFotos(); // zeigt Bilder im Album
+        }
     } else if (view === 'dateien') {
         currentPath = ['files'];
         renderDateien();
@@ -68,7 +86,8 @@ function switchViewTo(view) {
 function renderFotos() {
     const grid = document.getElementById('contentGrid');
     grid.innerHTML = '';
-    const fotos = folders['Home']?.items?.filter(i => isMediaFile(i.name)) || [];
+    const path = currentPath.length === 0 ? 'Home' : currentPath.join('/');
+    const fotos = folders[path]?.items?.filter(i => isMediaFile(i.name)) || [];
     fotos.forEach(f => grid.appendChild(createMediaCard(f)));
 }
 
@@ -96,6 +115,46 @@ function renderDateien() {
         `;
         grid.appendChild(div);
     });
+}
+
+function renderContent() {
+    const grid = document.getElementById('contentGrid');
+    grid.innerHTML = '';
+
+    const container = document.createElement('div');
+    container.className = 'uk-grid-small uk-child-width-1-2@s uk-child-width-1-3@m uk-child-width-1-4@l';
+    container.setAttribute('uk-grid', '');
+
+    const fullCurrentPath = currentPath.length === 0 ? 'Home' : currentPath.join('/');
+    const data = folders[fullCurrentPath];
+
+    if (!data) {
+        UIkit.notification({ message: `Pfad "${fullCurrentPath}" nicht gefunden`, status: 'danger' });
+        return;
+    }
+
+    const backBtnContainer = document.getElementById('backBtnContainer');
+    backBtnContainer.innerHTML = '';
+    if (currentPath.length > 0) {
+        const backBtn = document.createElement('button');
+        backBtn.className = 'uk-button uk-button-default uk-flex uk-flex-middle';
+        backBtn.innerHTML = '<span uk-icon="arrow-left"></span><span class="uk-margin-small-left">Zurück</span>';
+        backBtn.onclick = () => {
+            currentPath.pop();
+            renderContent();
+        };
+        backBtnContainer.appendChild(backBtn);
+    }
+
+    const frag = document.createDocumentFragment();
+    data.subfolders.forEach(n => frag.appendChild(createFolderCard(folders[n])));
+    data.items.forEach(it => frag.appendChild(createMediaCard(it)));
+
+    container.appendChild(frag);
+    grid.appendChild(container);
+
+    updateBreadcrumb();
+    switchViewTo('alben'); // Ansicht und FAB/Titel neu setzen
 }
 
 function switchView(mode) {
