@@ -37,9 +37,21 @@ document.addEventListener('DOMContentLoaded', () => {
 function switchViewTo(view) {
     activeView = view;
 
+    // Tabs markieren
     document.querySelectorAll('#viewTabs li').forEach(li =>
         li.classList.toggle('uk-active', li.dataset.view === view)
     );
+
+    // currentPath vor der Anzeige zurücksetzen
+    if (view === 'fotos') {
+        currentPath = [];
+    } else if (view === 'alben') {
+        if (activeView !== 'alben') {
+            currentPath = [];
+        }
+    } else if (view === 'dateien') {
+        currentPath = ['files'];
+    }
 
     const heading = document.getElementById('viewHeading');
     const toggleGroup = document.getElementById('viewModeToggles');
@@ -71,18 +83,16 @@ function switchViewTo(view) {
         view === 'alben' && currentPath.length > 0 ? 'block' : 'none'
     );
 
-    // Inhalt anzeigen
+    // Inhalte laden
     if (view === 'fotos') {
-        currentPath = [];
         renderFotos();
     } else if (view === 'alben') {
         if (currentPath.length === 0) {
-            renderContent(); // zeigt Ordner
+            renderContent(); // zeigt Ordner (Albumübersicht)
         } else {
-            renderFotos(); // zeigt Medien im Album
+            renderFotos();   // zeigt Bilder im Album
         }
     } else if (view === 'dateien') {
-        currentPath = ['files'];
         renderDateien();
     }
 }
