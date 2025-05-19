@@ -66,7 +66,7 @@
       <div class="uk-margin">
         <label class="uk-form-label">Ordnername</label>
         <div class="uk-form-controls">
-          <input class="uk-input" type="text" required>
+          <input class="uk-input" type="text" required />
         </div>
       </div>
       <div class="uk-margin">
@@ -82,11 +82,11 @@
   <div class="uk-modal-dialog uk-modal-body">
     <h2 class="uk-modal-title">Ordner umbenennen</h2>
     <form id="renameForm" class="uk-form-stacked">
-      <input type="hidden" id="renameOldName">
+      <input type="hidden" id="renameOldName" />
       <div class="uk-margin">
         <label class="uk-form-label">Neuer Name</label>
         <div class="uk-form-controls">
-          <input class="uk-input" type="text" id="renameNewName" required>
+          <input class="uk-input" type="text" id="renameNewName" required />
         </div>
       </div>
       <div class="uk-margin">
@@ -109,8 +109,27 @@
   </div>
 </div>
 
-<!-- Floating Upload Button -->
-<button class="uk-button uk-button-primary uk-position-fixed" style="bottom: 80px; right: 20px; z-index: 1000;" uk-toggle="target: #uploadModal" id="fabUpload">
+<!-- FAB: Bild hochladen (Fotos) -->
+<button class="uk-button uk-button-primary uk-position-fixed"
+        style="bottom: 80px; right: 20px; z-index: 1000; display: none;"
+        uk-toggle="target: #uploadModal"
+        id="fabFotos">
+  <span uk-icon="plus"></span> Bild hochladen
+</button>
+
+<!-- FAB: Neuer Ordner (Alben) -->
+<button class="uk-button uk-button-primary uk-position-fixed"
+        style="bottom: 80px; right: 20px; z-index: 1000; display: none;"
+        uk-toggle="target: #newFolderModal"
+        id="fabAlben">
+  <span uk-icon="folder"></span> Neuer Ordner
+</button>
+
+<!-- FAB: Datei hinzufügen (Dateien) -->
+<button class="uk-button uk-button-primary uk-position-fixed"
+        style="bottom: 80px; right: 20px; z-index: 1000; display: none;"
+        uk-toggle="target: #uploadModal"
+        id="fabDateien">
   <span uk-icon="plus"></span> Datei hinzufügen
 </button>
 
@@ -124,6 +143,7 @@
   </ul>
 </div>
 
+<!-- JS -->
 <script src="js/helpers.js"></script>
 <script src="js/init.js"></script>
 <script src="js/folders.js"></script>
@@ -138,5 +158,6 @@
     window.location.href = 'index.html';
   }
 </script>
+
 </body>
 </html>

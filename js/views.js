@@ -7,13 +7,13 @@ function switchViewTo(view) {
         li.classList.toggle('uk-active', li.dataset.view === view)
     );
 
-    // Button "Neuer Ordner" nur für Alben anzeigen
     const folderBtn = document.getElementById('newFolderBtn');
-    if (folderBtn) folderBtn.style.display = view === 'alben' ? '' : 'none';
+    if (folderBtn) folderBtn.style.display = 'none';
 
-    // Optional: Floating Upload Button
-    const fabUpload = document.getElementById('fabUpload');
-    if (fabUpload) fabUpload.style.display = 'block';
+    // Floating Action Buttons je nach Ansicht steuern
+    document.getElementById('fabFotos').style.display   = view === 'fotos'   ? 'block' : 'none';
+    document.getElementById('fabAlben').style.display   = view === 'alben'   ? 'block' : 'none';
+    document.getElementById('fabDateien').style.display = view === 'dateien' ? 'block' : 'none';
 
     if (view === 'fotos') {
         currentPath = [];
