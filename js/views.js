@@ -35,23 +35,19 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function switchViewTo(view) {
+    if (view !== activeView) {
+        if (view === 'fotos' || view === 'alben') {
+            currentPath = [];
+        } else if (view === 'dateien') {
+            currentPath = ['files'];
+        }
+    }
+
     activeView = view;
 
-    // Tabs markieren
     document.querySelectorAll('#viewTabs li').forEach(li =>
         li.classList.toggle('uk-active', li.dataset.view === view)
     );
-
-    // currentPath vor der Anzeige zurücksetzen
-    if (view === 'fotos') {
-        currentPath = [];
-    } else if (view === 'alben') {
-        if (activeView !== 'alben') {
-            currentPath = [];
-        }
-    } else if (view === 'dateien') {
-        currentPath = ['files'];
-    }
 
     const heading = document.getElementById('viewHeading');
     const toggleGroup = document.getElementById('viewModeToggles');
@@ -70,27 +66,23 @@ function switchViewTo(view) {
                         view === 'dateien' ? 'Dateien' : '';
     }
 
-    // Ansichtsschalter (Grid/List)
     toggleGroup.style.display = (view === 'alben' || view === 'dateien') ? 'flex' : 'none';
 
-    // FABs
     fabFotos.style.display = (view === 'fotos' || isInAlbumFolder) ? 'block' : 'none';
     fabAlben.style.display = isInAlbumRoot ? 'block' : 'none';
     fabDateien.style.display = view === 'dateien' ? 'block' : 'none';
 
-    // Breadcrumb nur im Album-Unterordner
     document.getElementById('breadcrumb')?.style.setProperty('display',
         view === 'alben' && currentPath.length > 0 ? 'block' : 'none'
     );
 
-    // Inhalte laden
     if (view === 'fotos') {
         renderFotos();
     } else if (view === 'alben') {
         if (currentPath.length === 0) {
-            renderContent(); // zeigt Ordner (Albumübersicht)
+            renderContent(); // zeigt Alben-Root
         } else {
-            renderFotos();   // zeigt Bilder im Album
+            renderFotos(); // zeigt Bilder im Album
         }
     } else if (view === 'dateien') {
         renderDateien();
@@ -155,7 +147,7 @@ function renderContent() {
         backBtn.innerHTML = '<span uk-icon="arrow-left"></span><span class="uk-margin-small-left">Zurück</span>';
         backBtn.onclick = () => {
             currentPath.pop();
-            renderContent();
+            switchViewTo('alben');
         };
         backBtnContainer.appendChild(backBtn);
     }
@@ -167,8 +159,7 @@ function renderContent() {
     container.appendChild(frag);
     grid.appendChild(container);
 
-    updateBreadcrumb();
-    switchViewTo('alben'); // Ansicht neu setzen
+    updateBreadcrumb(); // ✅ nicht switchViewTo!
 }
 
 function switchView(mode) {
@@ -190,5 +181,5 @@ function updateBreadcrumb() {
 
 function navigateToPath(path) {
     currentPath = path;
-    renderContent();
+    switchViewTo('alben');
 }
