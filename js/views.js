@@ -142,13 +142,15 @@ function renderContent() {
 
     const backBtnContainer = document.getElementById('backBtnContainer');
     backBtnContainer.innerHTML = '';
+
     if (currentPath.length > 0) {
         const backBtn = document.createElement('button');
         backBtn.className = 'uk-button uk-button-default uk-flex uk-flex-middle';
         backBtn.innerHTML = '<span uk-icon="arrow-left"></span><span class="uk-margin-small-left">Zurück</span>';
         backBtn.onclick = () => {
             currentPath.pop();
-            switchViewTo('alben');
+            // ❗ Kein switchViewTo mehr – bleibt in der Ansicht
+            renderContent(); // nur neu rendern
         };
         backBtnContainer.appendChild(backBtn);
     }
@@ -160,7 +162,7 @@ function renderContent() {
     container.appendChild(frag);
     grid.appendChild(container);
 
-    updateBreadcrumb(); // KEIN switchViewTo() hier!
+    updateBreadcrumb(); // ✅ Nur das – KEIN switchViewTo!
 }
 
 function switchView(mode) {
