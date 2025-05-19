@@ -37,7 +37,7 @@ function navigateToFolder(path) {
         return;
     }
     currentPath = path.split('/');
-    renderContent();
+    switchViewTo('alben');
 }
 
 let folderToDelete = null;
