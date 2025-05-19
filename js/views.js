@@ -1,9 +1,7 @@
 let activeView = 'fotos';
-let viewMode = 'grid'; // optional, falls Listen-/Gridumschaltung
 
-// Standardansicht initialisieren
+// Tabs initialisieren (damit man zwischen Fotos / Alben / Dateien wechseln kann)
 document.addEventListener('DOMContentLoaded', () => {
-    // Tabs (unten)
     document.querySelectorAll('#viewTabs li').forEach(li => {
         li.addEventListener('click', (e) => {
             e.preventDefault();
@@ -12,81 +10,50 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Ansichtsschalter (Grid/List)
-    document.getElementById('gridViewBtn')?.addEventListener('click', () => switchView('grid'));
-    document.getElementById('listViewBtn')?.addEventListener('click', () => switchView('list'));
-
-    // Logout
-    document.getElementById('logoutBtn')?.addEventListener('click', handleLogout);
-
-    // Upload
-    document.getElementById('uploadForm')?.addEventListener('submit', e => {
-        if (typeof handleUpload === 'function') handleUpload(e);
-    });
-
-    // Ordneraktionen
-    document.getElementById('newFolderForm')?.addEventListener('submit', handleNewFolder);
-    document.getElementById('renameForm')?.addEventListener('submit', handleRename);
-    document.getElementById('confirmDeleteBtn')?.addEventListener('click', confirmDelete);
-
-    // Breadcrumb Navigation
-    document.getElementById('breadcrumb')?.addEventListener('click', e => {
-        if (e.target.tagName === 'A') {
-            e.preventDefault();
-            const idx = Array.from(e.target.parentElement.parentElement.children)
-                .indexOf(e.target.parentElement);
-            navigateToPath(currentPath.slice(0, idx + 1));
-        }
-    });
-
-    // Startansicht
+    // Standardansicht initialisieren
     switchViewTo('fotos');
 });
 
 function switchViewTo(view) {
     activeView = view;
 
-    // Tabs markieren
+    // 🔄 Aktiven Tab markieren
     document.querySelectorAll('#viewTabs li').forEach(li =>
         li.classList.toggle('uk-active', li.dataset.view === view)
     );
 
-    // Titel aktualisieren
+    // 🔄 Überschrift ändern
     const heading = document.getElementById('viewHeading');
     if (heading) {
-        heading.textContent =
-            view === 'fotos' ? 'Fotos' :
-                view === 'alben' ? 'Alben' :
-                    view === 'dateien' ? 'Dateien' : '';
+        if (view === 'fotos') heading.textContent = 'Fotos';
+        else if (view === 'alben') heading.textContent = 'Alben';
+        else if (view === 'dateien') heading.textContent = 'Dateien';
     }
 
-    // FABs ein-/ausblenden
-    document.getElementById('fabFotos')?.style.setProperty('display', view === 'fotos' ? 'block' : 'none');
-    document.getElementById('fabAlben')?.style.setProperty('display', view === 'alben' ? 'block' : 'none');
-    document.getElementById('fabDateien')?.style.setProperty('display', view === 'dateien' ? 'block' : 'none');
+    // 🔄 FAB anzeigen
+    document.getElementById('fabFotos').style.display   = view === 'fotos'   ? 'block' : 'none';
+    document.getElementById('fabAlben').style.display   = view === 'alben'   ? 'block' : 'none';
+    document.getElementById('fabDateien').style.display = view === 'dateien' ? 'block' : 'none';
 
-    // Ansichtsschalter & Button (nur bei Alben / Dateien)
+    // 🔄 Ansichtsspezifische UI (nur bei Alben / Dateien)
     const toggleGroup = document.getElementById('viewModeToggles');
     const folderBtn = document.getElementById('newFolderBtn');
-    if (toggleGroup) toggleGroup.style.display = (view === 'alben' || view === 'dateien') ? 'flex' : 'none';
-    if (folderBtn) folderBtn.style.display = view === 'alben' ? 'inline-flex' : 'none';
 
-    // Inhalte laden
+    toggleGroup.style.display = (view === 'alben' || view === 'dateien') ? 'flex' : 'none';
+    folderBtn.style.display = view === 'alben' ? 'inline-flex' : 'none';
+
+    // 🔄 Inhalte anzeigen
     if (view === 'fotos') {
         currentPath = [];
         renderFotos();
     } else if (view === 'alben') {
         currentPath = [];
-        renderContent();
+        renderContent(); // zeigt Ordner-Grid
     } else if (view === 'dateien') {
         currentPath = ['files'];
         renderDateien();
     }
 }
-
-// ===============================
-// Einzelne Ansichten
-// ===============================
 
 function renderFotos() {
     const grid = document.getElementById('contentGrid');
@@ -114,30 +81,9 @@ function renderDateien() {
         const div = document.createElement('div');
         div.className = 'uk-card uk-card-default uk-card-body';
         div.innerHTML = `
-            <div class="uk-text-truncate" title="${d.name}">${d.name}</div>
-            <div class="uk-text-meta">${d.size} – ${d.date}</div>
-        `;
+      <div class="uk-text-truncate" title="${d.name}">${d.name}</div>
+      <div class="uk-text-meta">${d.size} – ${d.date}</div>
+    `;
         grid.appendChild(div);
     });
-}
-
-function switchView(mode) {
-    viewMode = mode;
-    document.getElementById('gridViewBtn')?.classList.toggle('uk-button-primary', mode === 'grid');
-    document.getElementById('listViewBtn')?.classList.toggle('uk-button-primary', mode === 'list');
-    renderContent();
-}
-
-function updateBreadcrumb() {
-    const bc = document.getElementById('breadcrumb');
-    bc.innerHTML = currentPath.map((p, i) =>
-        i === currentPath.length - 1
-            ? `<li><span>${p}</span></li>`
-            : `<li><a href="#">${p}</a></li>`
-    ).join('');
-}
-
-function navigateToPath(path) {
-    currentPath = path;
-    renderContent();
 }
