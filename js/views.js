@@ -47,10 +47,11 @@ function switchViewTo(view) {
     const fabAlben = document.getElementById('fabAlben');
     const fabDateien = document.getElementById('fabDateien');
 
+    // Korrektur: Album-Ordner erkennen
     const isInAlbumRoot = view === 'alben' && currentPath.length === 0;
     const isInAlbumFolder = view === 'alben' && currentPath.length > 0;
 
-    // Setze dynamischen Titel
+    // Titel dynamisch setzen
     if (heading) {
         heading.textContent =
             view === 'fotos' ? 'Fotos' :
@@ -60,20 +61,23 @@ function switchViewTo(view) {
     }
 
     // FABs
-    fabFotos.style.display = view === 'fotos' ? 'block' : 'none';
+    fabFotos.style.display = (view === 'fotos' || isInAlbumFolder) ? 'block' : 'none';
     fabAlben.style.display = isInAlbumRoot ? 'block' : 'none';
     fabDateien.style.display = view === 'dateien' ? 'block' : 'none';
 
     // Ansichtsschalter (Grid/List)
     toggleGroup.style.display = (view === 'alben' || view === 'dateien') ? 'flex' : 'none';
 
-    // Inhalt laden
+    // Inhalte
     if (view === 'fotos') {
         currentPath = [];
         renderFotos();
     } else if (view === 'alben') {
+        if (currentPath.length === 0 || currentPath[0] === 'files') {
+            currentPath = [];
+        }
         if (currentPath.length === 0) {
-            renderContent(); // zeigt Ordner
+            renderContent();
         } else {
             renderFotos(); // zeigt Bilder im Album
         }
@@ -89,6 +93,7 @@ function renderFotos() {
     const path = currentPath.length === 0 ? 'Home' : currentPath.join('/');
     const fotos = folders[path]?.items?.filter(i => isMediaFile(i.name)) || [];
     fotos.forEach(f => grid.appendChild(createMediaCard(f)));
+    updateBreadcrumb();
 }
 
 function renderAlben() {
@@ -99,6 +104,7 @@ function renderAlben() {
         const card = createFolderCard(folders[path]);
         grid.appendChild(card);
     });
+    updateBreadcrumb();
 }
 
 function renderDateien() {
@@ -115,6 +121,7 @@ function renderDateien() {
         `;
         grid.appendChild(div);
     });
+    updateBreadcrumb();
 }
 
 function renderContent() {
@@ -154,7 +161,7 @@ function renderContent() {
     grid.appendChild(container);
 
     updateBreadcrumb();
-    switchViewTo('alben'); // Ansicht und FAB/Titel neu setzen
+    switchViewTo('alben');
 }
 
 function switchView(mode) {
@@ -166,6 +173,7 @@ function switchView(mode) {
 
 function updateBreadcrumb() {
     const bc = document.getElementById('breadcrumb');
+    if (!bc) return;
     bc.innerHTML = currentPath.map((p, i) =>
         i === currentPath.length - 1
             ? `<li><span>${p}</span></li>`
