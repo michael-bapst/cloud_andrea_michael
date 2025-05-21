@@ -13,7 +13,7 @@ window.handleUpload = async function (e) {
 
     const token = getToken();
     let targetPath = currentPath.length === 0 ? '' : currentPath.join('/');
-    if (activeView === 'fotos') targetPath = '';
+    if (activeView === 'fotos') targetPath = ''; // Nur Fotos im Root
     if (activeView === 'dateien') targetPath = 'files';
 
     for (const file of files) {

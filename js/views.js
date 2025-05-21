@@ -35,7 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function switchViewTo(view) {
-    // Nur beim Wechsel wirklich resetten
     if (view !== activeView) {
         if (view === 'fotos' || view === 'alben') {
             currentPath = [];
@@ -46,10 +45,12 @@ function switchViewTo(view) {
 
     activeView = view;
 
+    // Tabs aktiv markieren
     document.querySelectorAll('#viewTabs li').forEach(li =>
         li.classList.toggle('uk-active', li.dataset.view === view)
     );
 
+    // Überschrift & Buttons
     const heading = document.getElementById('viewHeading');
     const toggleGroup = document.getElementById('viewModeToggles');
     const fabFotos = document.getElementById('fabFotos');
@@ -73,17 +74,33 @@ function switchViewTo(view) {
     fabAlben.style.display = isInAlbumRoot ? 'block' : 'none';
     fabDateien.style.display = view === 'dateien' ? 'block' : 'none';
 
+    // Breadcrumb nur bei Album-Unterordner anzeigen
     document.getElementById('breadcrumb')?.style.setProperty('display',
         view === 'alben' && currentPath.length > 0 ? 'block' : 'none'
     );
 
+    // Zurück-Button im Album-Unterordner
+    const backBtnContainer = document.getElementById('backBtnContainer');
+    backBtnContainer.innerHTML = '';
+    if (view === 'alben' && currentPath.length > 0) {
+        const backBtn = document.createElement('button');
+        backBtn.className = 'uk-button uk-button-default uk-flex uk-flex-middle';
+        backBtn.innerHTML = '<span uk-icon="arrow-left"></span><span class="uk-margin-small-left">Zurück zu Alben</span>';
+        backBtn.onclick = () => {
+            currentPath.pop();
+            switchViewTo('alben');
+        };
+        backBtnContainer.appendChild(backBtn);
+    }
+
+    // Ansichten laden
     if (view === 'fotos') {
         renderFotos();
     } else if (view === 'alben') {
         if (currentPath.length === 0) {
-            renderContent();
+            renderContent(); // zeigt Alben
         } else {
-            renderFotos(); // zeigt Bilder im Album
+            renderFotos();   // zeigt Bilder im Ordner
         }
     } else if (view === 'dateien') {
         renderDateien();
@@ -93,19 +110,12 @@ function switchViewTo(view) {
 function renderFotos() {
     const grid = document.getElementById('contentGrid');
     grid.innerHTML = '';
-    const path = currentPath.length === 0 ? 'Home' : currentPath.join('/');
+
+    let path = currentPath.join('/');
+    if (activeView === 'fotos') path = 'Home'; // nur Root-Bilder
+
     const fotos = folders[path]?.items?.filter(i => isMediaFile(i.name)) || [];
     fotos.forEach(f => grid.appendChild(createMediaCard(f)));
-}
-
-function renderAlben() {
-    const grid = document.getElementById('contentGrid');
-    grid.innerHTML = '';
-    const alben = folders['Home']?.subfolders || [];
-    alben.forEach(path => {
-        const card = createFolderCard(folders[path]);
-        grid.appendChild(card);
-    });
 }
 
 function renderDateien() {
@@ -149,7 +159,6 @@ function renderContent() {
         backBtn.innerHTML = '<span uk-icon="arrow-left"></span><span class="uk-margin-small-left">Zurück</span>';
         backBtn.onclick = () => {
             currentPath.pop();
-            // ❗ Kein switchViewTo mehr – bleibt in der Ansicht
             renderContent(); // nur neu rendern
         };
         backBtnContainer.appendChild(backBtn);
@@ -162,7 +171,7 @@ function renderContent() {
     container.appendChild(frag);
     grid.appendChild(container);
 
-    updateBreadcrumb(); // ✅ Nur das – KEIN switchViewTo!
+    updateBreadcrumb();
 }
 
 function switchView(mode) {

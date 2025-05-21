@@ -103,6 +103,74 @@ body {
     padding: 30px;
 }
 
+/* Album Card Layout */
+.album-card {
+    background-color: white;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0;
+    transition: transform 0.15s ease;
+}
+
+.album-card:hover {
+    transform: scale(1.01);
+}
+
+.album-card-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.album-thumbnail {
+    width: 100%;
+    height: 100px;
+    background-color: #f1f1f1;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.album-placeholder-icon {
+    font-size: 32px;
+    color: #bbb;
+}
+
+.album-meta {
+    margin-top: 10px;
+    width: 100%;
+}
+
+.album-title {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--secondary-color);
+    text-align: center;
+}
+
+.album-sub {
+    font-size: 12px;
+    color: #999;
+    margin-top: 2px;
+    text-align: center;
+}
+
+.album-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-top: 1px solid #f0f0f0;
+}
+
 /* Mobile Optimierungen */
 @media (max-width: 640px) {
     .uk-container {
@@ -116,7 +184,11 @@ body {
     }
 
     .media-cloud-item img {
-        max-height: 140px;
+        max-height: 100px;
+    }
+
+    .album-card .album-thumbnail {
+        height: 80px;
     }
 
     .uk-button-small {
@@ -124,6 +196,7 @@ body {
         padding: 2px 8px;
     }
 }
+
 #breadcrumb:empty {
     display: none;
 }
