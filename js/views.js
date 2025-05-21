@@ -159,14 +159,19 @@ function renderContent() {
         backBtn.innerHTML = '<span uk-icon="arrow-left"></span><span class="uk-margin-small-left">Zurück</span>';
         backBtn.onclick = () => {
             currentPath.pop();
-            renderContent(); // nur neu rendern
+            renderContent();
         };
         backBtnContainer.appendChild(backBtn);
     }
 
     const frag = document.createDocumentFragment();
+
+    // Nur Unterordner anzeigen
     data.subfolders.forEach(n => frag.appendChild(createFolderCard(folders[n])));
-    data.items.forEach(it => frag.appendChild(createMediaCard(it)));
+
+    // Nur Bilder im aktuellen Ordner anzeigen
+    const filteredItems = data.items.filter(i => isMediaFile(i.name));
+    filteredItems.forEach(it => frag.appendChild(createMediaCard(it)));
 
     container.appendChild(frag);
     grid.appendChild(container);

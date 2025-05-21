@@ -13,42 +13,77 @@ window.handleUpload = async function (e) {
 
     const token = getToken();
     let targetPath = currentPath.length === 0 ? '' : currentPath.join('/');
-    if (activeView === 'fotos') targetPath = ''; // Nur Fotos im Root
+    if (activeView === 'fotos') targetPath = '';
     if (activeView === 'dateien') targetPath = 'files';
 
-    for (const file of files) {
-        if (activeView === 'fotos' && !allowedImages.test(file.name)) {
-            UIkit.notification({ message: 'Nur Bilder im Bereich „Fotos“ erlaubt', status: 'warning' });
-            continue;
-        }
+    // Fortschrittsanzeige vorbereiten
+    const progressBar = document.getElementById('uploadProgressBar');
+    progressBar.max = files.length;
+    progressBar.value = 0;
+    progressBar.parentElement.style.display = 'block';
 
-        if (activeView === 'dateien' && !allowedDocs.test(file.name)) {
-            UIkit.notification({ message: 'Nur Dokumente im Bereich „Dateien“ erlaubt', status: 'warning' });
-            continue;
-        }
+    let completed = 0;
 
-        const form = new FormData();
-        form.append('file', file);
-        form.append('folder', targetPath);
-
-        try {
-            const res = await fetch(`${API_BASE}/upload`, {
-                method: 'POST',
-                headers: { Authorization: `Bearer ${token}` },
-                body: form
-            });
-
-            if (!res.ok) {
-                const err = await res.json().catch(() => ({}));
-                throw new Error(err.detail || 'Upload fehlgeschlagen');
+    // Upload jeder Datei parallel, mit Fortschritt
+    await Promise.all([...files].map(file => {
+        return new Promise((resolve, reject) => {
+            // Validierung
+            if (activeView === 'fotos' && !allowedImages.test(file.name)) {
+                UIkit.notification({ message: 'Nur Bilder erlaubt', status: 'warning' });
+                return resolve();
             }
-        } catch (err) {
-            UIkit.notification({ message: err.message || 'Upload-Fehler', status: 'danger' });
-        }
-    }
 
+            if (activeView === 'dateien' && !allowedDocs.test(file.name)) {
+                UIkit.notification({ message: 'Nur Dokumente erlaubt', status: 'warning' });
+                return resolve();
+            }
+
+            const xhr = new XMLHttpRequest();
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('folder', targetPath);
+
+            xhr.open('POST', `${API_BASE}/upload`);
+            xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+
+            xhr.upload.onprogress = (event) => {
+                if (event.lengthComputable) {
+                    console.log(`Uploading ${file.name}: ${Math.round(event.loaded / event.total * 100)}%`);
+                }
+            };
+
+            xhr.onload = () => {
+                completed++;
+                progressBar.value = completed;
+                if (xhr.status === 200) {
+                    resolve();
+                } else {
+                    UIkit.notification({ message: `Fehler bei ${file.name}`, status: 'danger' });
+                    resolve(); // nicht reject, damit Promise.all nicht abbricht
+                }
+            };
+
+            xhr.onerror = () => {
+                UIkit.notification({ message: `Netzwerkfehler bei ${file.name}`, status: 'danger' });
+                resolve();
+            };
+
+            xhr.send(formData);
+        });
+    }));
+
+    // Upload fertig
     UIkit.notification({ message: 'Upload abgeschlossen', status: 'success' });
     UIkit.modal('#uploadModal').hide();
     fileInput.value = '';
-    renderContent();
+    progressBar.parentElement.style.display = 'none';
+
+    // Ansicht aktualisieren
+    if (activeView === 'fotos') {
+        renderFotos();
+    } else if (activeView === 'dateien') {
+        renderDateien();
+    } else if (activeView === 'alben') {
+        renderContent();
+    }
 };

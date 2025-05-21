@@ -5,29 +5,50 @@ function createFolderCard(f) {
     const safeId = encodeURIComponent(f.id);
 
     const div = document.createElement('div');
-    div.className = 'media-item folder-item uk-width-1-1';
+    div.className = 'album-card';
+
+    // Vorschaubild vorbereiten
+    const thumbnailWrapper = document.createElement('div');
+    thumbnailWrapper.className = 'album-thumbnail';
+
+    // Erstes Bild im Ordner (falls vorhanden)
+    const mediaItem = f.items?.find(i => isMediaFile(i.name));
+
+    if (mediaItem) {
+        const img = document.createElement('img');
+        img.alt = mediaItem.name;
+        img.style.width = '100%';
+        img.style.height = '100%';
+        img.style.objectFit = 'cover';
+        img.style.borderRadius = '8px';
+        getSignedFileUrl(mediaItem.key).then(url => {
+            img.src = url;
+        }).catch(() => {
+            img.src = '';
+        });
+        thumbnailWrapper.appendChild(img);
+    } else {
+        // Platzhalter
+        thumbnailWrapper.innerHTML = `<span uk-icon="icon: image; ratio: 2" class="album-placeholder-icon"></span>`;
+    }
+
     div.innerHTML = `
-    <div class="uk-card uk-card-default uk-margin-small uk-padding-remove folder-card">
-      <div class="folder-accent-bar"></div>
-      <div class="uk-card-body uk-padding-small">
-        <div class="folder-content">
-          <div class="uk-margin-small"><span uk-icon="icon: folder;ratio:2.2"></span></div>
-          <div class="uk-heading-small uk-margin-remove">${f.name}</div>
-          <div class="uk-text-meta">${date}</div>
+        <div class="album-card-inner" onclick="navigateToFolder(decodeURIComponent('${safeId}'))">
+            ${thumbnailWrapper.outerHTML}
+            <div class="album-meta">
+                <div class="album-title">${f.name}</div>
+                <div class="album-sub">${date}</div>
+            </div>
         </div>
-        <div class="folder-buttons">
-          <button class="uk-button uk-button-default uk-button-small" onclick="navigateToFolder(decodeURIComponent('${safeId}'))">
-            <span uk-icon="folder"></span> Öffnen
-          </button>
-          <button class="uk-button uk-button-default uk-button-small" onclick="editFolder(decodeURIComponent('${safeId}'), event)">
-            <span uk-icon="pencil"></span> Bearbeiten
-          </button>
-          <button class="uk-button uk-button-default uk-button-small" onclick="deleteFolder(decodeURIComponent('${safeId}'), event)">
-            <span uk-icon="trash"></span> Löschen
-          </button>
+        <div class="album-actions">
+            <button class="uk-button uk-button-default uk-button-small" onclick="event.stopPropagation(); editFolder(decodeURIComponent('${safeId}'), event)">
+                <span uk-icon="pencil"></span>
+            </button>
+            <button class="uk-button uk-button-default uk-button-small" onclick="event.stopPropagation(); deleteFolder(decodeURIComponent('${safeId}'), event)">
+                <span uk-icon="trash"></span>
+            </button>
         </div>
-      </div>
-    </div>`;
+    `;
     return div;
 }
 
@@ -107,7 +128,12 @@ async function handleRename(e) {
     delete folders[oldPath];
 
     UIkit.modal('#renameModal').hide();
-    renderContent();
+
+    if (activeView === 'alben') {
+        renderContent();
+    } else if (activeView === 'fotos') {
+        renderFotos();
+    }
 }
 
 function deleteFolder(path, event) {
@@ -156,7 +182,14 @@ async function confirmDelete() {
     delete folders[fullPath];
     UIkit.modal('#deleteModal').hide();
     UIkit.notification({ message: 'Ordner gelöscht', status: 'success' });
-    renderContent();
+
+    if (activeView === 'alben') {
+        renderContent();
+    } else if (activeView === 'fotos') {
+        renderFotos();
+    } else if (activeView === 'dateien') {
+        renderDateien();
+    }
 }
 
 async function handleNewFolder(e) {

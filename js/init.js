@@ -88,6 +88,11 @@ async function init() {
         }
     });
 
-    // ✅ NEU: Start mit "Fotos"-Ansicht
-    switchViewTo('fotos');
+    const savedView = localStorage.getItem('lastView');
+    const savedPath = localStorage.getItem('lastPath');
+
+    if (savedView) activeView = savedView;
+    if (savedPath) currentPath = JSON.parse(savedPath);
+
+    switchViewTo(activeView || 'fotos');
 }
