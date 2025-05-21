@@ -213,3 +213,85 @@ function navigateToPath(path) {
     currentPath = path;
     switchViewTo('alben');
 }
+
+function renderSyncView() {
+    const grid = document.getElementById('contentGrid');
+    grid.innerHTML = '';
+
+    // 🔵 Setze Seitenüberschrift
+    const heading = document.getElementById('viewHeading');
+    if (heading) heading.textContent = 'Sync';
+
+    // 🔵 Verstecke Ansichtsschalter
+    const toggleGroup = document.getElementById('viewModeToggles');
+    if (toggleGroup) toggleGroup.style.display = 'none';
+
+    // 🔵 Upload UI im selben Stil wie „Fotos“
+    const wrapper = document.createElement('div');
+    wrapper.className = 'uk-card uk-card-default uk-card-body';
+
+    wrapper.innerHTML = `
+      <div class="uk-margin-bottom">
+        <label class="uk-form-label">Wähle einen lokalen Ordner (einmalig):</label>
+        <div class="uk-form-controls">
+          <input class="uk-input" type="file" id="syncFolderInput" webkitdirectory multiple />
+        </div>
+      </div>
+
+      <button class="uk-button uk-button-primary uk-button-small" id="syncUploadBtn">
+        <span uk-icon="upload"></span><span class="uk-margin-small-left">Hochladen</span>
+      </button>
+
+      <div id="syncResult" class="uk-margin-top uk-text-muted uk-text-small"></div>
+    `;
+
+    grid.appendChild(wrapper);
+
+    // 🔵 Upload-Funktion für Ordner
+    document.getElementById('syncUploadBtn').addEventListener('click', async () => {
+        const input = document.getElementById('syncFolderInput');
+        const files = input.files;
+
+        if (!files.length) {
+            UIkit.notification({ message: '❗ Kein Ordner ausgewählt', status: 'warning' });
+            return;
+        }
+
+        const token = getToken();
+        const folderName = files[0].webkitRelativePath.split('/')[0];
+
+        for (const file of files) {
+            const form = new FormData();
+            form.append('file', file);
+            form.append('folder', `sync/${folderName}`);
+
+            await fetch(`${API_BASE}/upload`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+                body: form
+            });
+        }
+
+        UIkit.notification({ message: '✅ Ordner synchronisiert', status: 'success' });
+        renderSyncOverview();
+    });
+
+    renderSyncOverview();
+}
+function renderSyncOverview() {
+    const grid = document.getElementById('contentGrid');
+
+    const container = document.createElement('div');
+    container.className = 'uk-grid-small uk-child-width-1-2@s uk-child-width-1-3@m uk-child-width-1-4@l';
+    container.setAttribute('uk-grid', '');
+
+    const syncFolders = Object.keys(folders)
+        .filter(p => p.startsWith('sync/') && folders[p].parent === 'sync');
+
+    const frag = document.createDocumentFragment();
+    syncFolders.forEach(p => frag.appendChild(createFolderCard(folders[p])));
+
+    container.appendChild(frag);
+    grid.appendChild(container);
+}
+
