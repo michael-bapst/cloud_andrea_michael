@@ -5,7 +5,6 @@
     --card-hover-color: #f0f0f0;
 }
 
-/* Allgemein */
 body {
     background-color: var(--background-color);
 }
@@ -15,7 +14,6 @@ body {
     padding-bottom: 40px;
 }
 
-/* Medienansicht im Cloud-Stil */
 .media-cloud-item {
     transition: transform 0.15s ease;
     position: relative;
@@ -29,7 +27,6 @@ body {
 
 .media-cloud-item img {
     width: 100%;
-    max-height: 220px;
     object-fit: cover;
     border-radius: 6px;
     display: block;
@@ -56,7 +53,6 @@ body {
     border-radius: 8px;
 }
 
-/* Grid dynamisch erzeugt */
 #contentGrid > div[uk-grid] {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -92,7 +88,6 @@ body {
     margin-top: 10px;
 }
 
-/* Buttons */
 .uk-button {
     border-radius: 4px;
     padding: 0 20px;
@@ -113,7 +108,6 @@ body {
     background-color: var(--primary-color);
 }
 
-/* Breadcrumbs */
 .uk-breadcrumb {
     background: #fff;
     padding: 15px;
@@ -127,7 +121,6 @@ body {
     align-items: center;
 }
 
-/* Modals */
 .uk-modal-dialog {
     border-radius: 8px;
     max-width: 500px;
@@ -138,39 +131,7 @@ body {
     padding: 30px;
 }
 
-/* Mobile Optimierungen */
-@media (max-width: 640px) {
-    .uk-container {
-        padding-left: 15px;
-        padding-right: 15px;
-    }
-
-    #contentGrid > div[uk-grid] {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-        gap: 12px;
-    }
-
-    .media-cloud-item img {
-        max-height: 100px;
-    }
-
-    .media-foto img {
-        max-height: 90px;
-    }
-
-    .folder-card .folder-content {
-        padding: 8px 0;
-    }
-
-    .uk-button-small {
-        font-size: 12px;
-        padding: 2px 8px;
-    }
-}
-
-#breadcrumb:empty {
-    display: none;
-}
+/* Album Cards */
 .album-card {
     border-radius: 14px;
     overflow: hidden;
@@ -226,4 +187,38 @@ body {
     gap: 10px;
     padding: 8px 0;
     border-top: 1px solid #f0f0f0;
+}
+
+/* Nur Mobile-Ansicht */
+@media (max-width: 640px) {
+    .uk-container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    #contentGrid > div[uk-grid] {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 12px;
+    }
+
+    .media-cloud-item img {
+        max-height: 100px;
+    }
+
+    .media-foto img {
+        max-height: 90px;
+    }
+
+    .folder-card .folder-content {
+        padding: 8px 0;
+    }
+
+    .uk-button-small {
+        font-size: 12px;
+        padding: 2px 8px;
+    }
+}
+
+#breadcrumb:empty {
+    display: none;
 }

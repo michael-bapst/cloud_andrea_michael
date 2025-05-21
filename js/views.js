@@ -112,10 +112,14 @@ function renderFotos() {
     grid.innerHTML = '';
 
     let path = currentPath.join('/');
-    if (activeView === 'fotos') path = 'Home'; // nur Root-Bilder
+    if (activeView === 'fotos') path = 'Home'; // Nur root-Bilder für Fotos
 
     const fotos = folders[path]?.items?.filter(i => isMediaFile(i.name)) || [];
-    fotos.forEach(f => grid.appendChild(createMediaCard(f)));
+    fotos.forEach(f => {
+        const card = createMediaCard(f);
+        card.classList.add('media-cloud-item', 'media-foto'); // Wichtig: Klasse für kleine Ansicht
+        grid.appendChild(card);
+    });
 }
 
 function renderDateien() {
@@ -166,12 +170,18 @@ function renderContent() {
 
     const frag = document.createDocumentFragment();
 
-    // Nur Unterordner anzeigen
-    data.subfolders.forEach(n => frag.appendChild(createFolderCard(folders[n])));
+    if (currentPath.length === 0) {
+        // ✅ Nur Unterordner (Alben) anzeigen
+        data.subfolders.forEach(n => frag.appendChild(createFolderCard(folders[n])));
+    } else {
 
-    // Nur Bilder im aktuellen Ordner anzeigen
-    const filteredItems = data.items.filter(i => isMediaFile(i.name));
-    filteredItems.forEach(it => frag.appendChild(createMediaCard(it)));
+        const filteredItems = data.items.filter(i => isMediaFile(i.name));
+        filteredItems.forEach(it => {
+            const card = createMediaCard(it);
+            card.classList.add('media-cloud-item', 'media-foto'); // Gleiche Darstellung wie in Fotos
+            frag.appendChild(card);
+        });
+    }
 
     container.appendChild(frag);
     grid.appendChild(container);
