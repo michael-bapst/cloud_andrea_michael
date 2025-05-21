@@ -98,12 +98,15 @@ function switchViewTo(view) {
         renderFotos();
     } else if (view === 'alben') {
         if (currentPath.length === 0) {
-            renderContent(); // zeigt Alben
+            renderContent();
         } else {
-            renderFotos();   // zeigt Bilder im Ordner
+            renderFotos();
         }
     } else if (view === 'dateien') {
         renderDateien();
+    }
+    else if (view === 'sync') {
+        renderSyncView();
     }
 }
 

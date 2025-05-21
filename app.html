@@ -20,6 +20,10 @@
 
 <body>
 
+<button class="uk-button uk-button-default uk-position-top-right uk-margin-small-top uk-margin-small-right" id="logoutBtn">
+  <span uk-icon="sign-out"></span> Logout
+</button>
+
 <!-- Hauptbereich -->
 <div class="uk-container uk-margin-small-top">
   <h2 id="viewHeading" class="uk-heading-small uk-text-primary uk-margin-remove-top uk-margin-small-bottom">Fotos</h2>
@@ -129,10 +133,10 @@
 <!-- Bottom Navigation -->
 <div class="uk-position-fixed uk-position-bottom uk-width-1-1 uk-background-default uk-box-shadow-top" style="z-index:999;">
   <ul class="uk-subnav uk-subnav-pill uk-flex-center uk-child-width-expand" id="viewTabs" style="padding: 10px 0; margin: 0;">
-    <li class="uk-active" data-view="fotos"><a href="#"><span uk-icon="image"></span><div class="uk-text-small">Fotos</div></a></li>
-    <li data-view="alben"><a href="#"><span uk-icon="folder"></span><div class="uk-text-small">Alben</div></a></li>
-    <li data-view="dateien"><a href="#"><span uk-icon="file-text"></span><div class="uk-text-small">Dateien</div></a></li>
-    <li><a href="#" id="logoutBtn"><span uk-icon="sign-out"></span><div class="uk-text-small">Logout</div></a></li>
+    <li class="uk-active" data-view="fotos"><a href="#"><span uk-icon="📷"></span><div class="uk-text-small">Fotos</div></a></li>
+    <li data-view="alben"><a href="#"><span uk-icon="📁"></span><div class="uk-text-small">Alben</div></a></li>
+    <li data-view="dateien"><a href="#"><span uk-icon="📄"></span><div class="uk-text-small">Dateien</div></a></li>
+    <li data-view="sync"><a href="#"><span uk-icon="🔄"></span><div class="uk-text-small">Sync</div></a></li>
   </ul>
 </div>
 
@@ -142,6 +146,7 @@
 <script src="js/media.js"></script>
 <script src="js/upload.js"></script>
 <script src="js/views.js"></script>
+<script src="js/sync.js"></script>
 <script src="js/init.js"></script>
 
 <script>
