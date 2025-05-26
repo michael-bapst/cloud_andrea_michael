@@ -44,29 +44,7 @@
 
   <!-- Inhalt -->
   <div id="contentGrid" class="uk-margin-top">
-    <div uk-grid>
-
-      <!-- Beispiel: Foto -->
-      <div class="media-photo-card">
-        <div class="media-photo-thumbnail">
-          <img src="fotos/IMG_001.jpg" alt="IMG_001.jpg">
-        </div>
-        <div class="media-photo-title">IMG_001.jpg</div>
-        <div class="media-photo-sub">2.4 MB • 2025-05-20</div>
-      </div>
-
-      <!-- Beispiel: Datei -->
-      <div class="media-photo-card">
-        <div class="media-photo-thumbnail">
-          <img src="icons/file-pdf.svg" alt="Beispiel.pdf">
-        </div>
-        <div class="media-photo-title">Beispiel.pdf</div>
-        <div class="media-photo-sub">1.2 MB • 2025-05-22</div>
-      </div>
-
-      <!-- Weitere Kacheln kannst du hier dynamisch oder statisch ergänzen -->
-
-    </div>
+    <div id="mediaGrid" class="uk-grid-small" uk-grid></div>
   </div>
 </div>
 
@@ -169,13 +147,17 @@
 <script src="js/media.js"></script>
 <script src="js/upload.js"></script>
 <script src="js/views.js"></script>
-<script src="js/sync.js"></script>
 <script src="js/init.js"></script>
 
 <script>
   const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
   if (!token) {
     window.location.href = 'index.html';
+  }
+
+  // Optionaler Direktstart bei View: Fotos
+  if (document.querySelector('#mediaGrid') && document.querySelector('[data-view="fotos"]').classList.contains('uk-active')) {
+    renderFotos();
   }
 </script>
 

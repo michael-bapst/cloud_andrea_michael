@@ -1,11 +1,11 @@
 // js/media.js
 
-// 🔓 Unterstützte Dateitypen für Vorschau
+// Unterstützte Dateitypen für Vorschau / Kacheln
 window.isMediaFile = function (name) {
-    return /\.(jpe?g|png|gif|bmp|webp|mp4|webm|pdf|docx?|xlsx?|txt)$/i.test(name);
+    return /\.(jpe?g|png|gif|bmp|webp|mp4|webm|pdf|docx?|xlsx?|txt|zip|json)$/i.test(name);
 };
 
-// ✅ Signed URL vom Server holen
+// Signed URL vom Server holen
 async function getSignedFileUrl(key) {
     const token = getToken();
     const apiUrl = `${API_BASE}/file-url?key=${encodeURIComponent(key)}`;
@@ -27,7 +27,7 @@ async function getSignedFileUrl(key) {
     return data.url;
 }
 
-// 🗑 Datei löschen
+// Datei löschen
 async function deleteFile(key, e) {
     e.stopPropagation();
     const token = getToken();
@@ -54,7 +54,7 @@ async function deleteFile(key, e) {
     renderContent();
 }
 
-// ⬇️ Datei herunterladen
+// Datei herunterladen
 async function downloadFile(key) {
     try {
         const url = await getSignedFileUrl(key);
@@ -65,26 +65,27 @@ async function downloadFile(key) {
     }
 }
 
-// 📷 Medienkarte (NEUES Layout mit .media-photo-card)
+// Medienkarte als .media-photo-card in uk-width-Spalte einfügen
 function createMediaCard(item) {
     if (!item || !item.name || item.key.endsWith('/')) {
-        return document.createComment('Nicht darstellbare Datei – wird übersprungen');
+        return document.createComment('Ungültig – kein Dateiobjekt oder Ordner');
     }
+
+    const outer = document.createElement('div');
+    outer.className = 'uk-width-1-2@s uk-width-1-3@m';
 
     const container = document.createElement('div');
     container.className = 'media-photo-card';
 
-    // Thumbnail
     const thumb = document.createElement('div');
     thumb.className = 'media-photo-thumbnail';
 
     const img = document.createElement('img');
     img.alt = item.name;
-    img.src = 'icons/file-placeholder.svg'; // Platzhalter, wird ersetzt
+    img.src = 'icons/file-placeholder.svg'; // Fallback
 
     thumb.appendChild(img);
 
-    // Titel & Subinfo
     const title = document.createElement('div');
     title.className = 'media-photo-title';
     title.textContent = item.name;
@@ -93,32 +94,39 @@ function createMediaCard(item) {
     sub.className = 'media-photo-sub';
     sub.textContent = `${item.size} • ${item.date}`;
 
-    // Aktionen (Download / Löschen)
     const actions = document.createElement('div');
     actions.className = 'media-actions';
     actions.innerHTML = `
         <button class="uk-icon-button" uk-icon="download" title="Download" onclick="downloadFile('${item.key}')"></button>
         <button class="uk-icon-button" uk-icon="trash" title="Löschen" onclick="deleteFile('${item.key}', event)"></button>
     `;
+
     container.appendChild(actions);
-
-    // Hover für Aktionen
-    container.addEventListener('mouseenter', () => actions.style.opacity = 1);
-    container.addEventListener('mouseleave', () => actions.style.opacity = 0);
-
-    // URL holen und setzen
-    getSignedFileUrl(item.key)
-        .then(url => {
-            img.src = url;
-        })
-        .catch(err => {
-            console.warn('❌ Vorschaubild konnte nicht geladen werden:', err.message);
-        });
-
-    // Zusammenbauen
     container.appendChild(thumb);
     container.appendChild(title);
     container.appendChild(sub);
 
-    return container;
+    container.addEventListener('mouseenter', () => actions.style.opacity = 1);
+    container.addEventListener('mouseleave', () => actions.style.opacity = 0);
+
+    getSignedFileUrl(item.key)
+        .then(url => img.src = url)
+        .catch(() => {
+            console.warn(`❌ Fehler beim Laden von Vorschaubild: ${item.name}`);
+        });
+
+    outer.appendChild(container);
+    return outer;
+}
+
+// Rendering-Funktion z. B. für renderFotos(), renderDateien()
+function renderMediaList(data, containerId = 'mediaGrid') {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.innerHTML = '';
+    data.forEach(item => {
+        const card = createMediaCard(item);
+        if (card) container.appendChild(card);
+    });
 }
