@@ -2,9 +2,10 @@
 
 // 🔓 Unterstützte Dateitypen für Vorschau
 window.isMediaFile = function (name) {
-    return /\.(jpe?g|png|gif|bmp|webp|mp4|webm)$/i.test(name);
+    return /\.(jpe?g|png|gif|bmp|webp|mp4|webm|pdf|docx?|xlsx?|txt)$/i.test(name);
 };
 
+// ✅ Signed URL vom Server holen
 async function getSignedFileUrl(key) {
     const token = getToken();
     const apiUrl = `${API_BASE}/file-url?key=${encodeURIComponent(key)}`;
@@ -64,66 +65,60 @@ async function downloadFile(key) {
     }
 }
 
-// 📷 Medienkarte (Vorschau im Grid)
+// 📷 Medienkarte (NEUES Layout mit .media-photo-card)
 function createMediaCard(item) {
-    if (!item || !item.name || item.key.endsWith('/') || !isMediaFile(item.name)) {
-        return document.createComment('Nicht-Medien-Datei oder Ordner wird nicht angezeigt');
+    if (!item || !item.name || item.key.endsWith('/')) {
+        return document.createComment('Nicht darstellbare Datei – wird übersprungen');
     }
 
     const container = document.createElement('div');
-    container.className = 'media-cloud-item';
-    container.style.position = 'relative';
-    container.style.overflow = 'hidden';
+    container.className = 'media-photo-card';
 
-    const imgId = `img-${Math.random().toString(36).slice(2)}`;
-    const anchorId = `a-${Math.random().toString(36).slice(2)}`;
+    // Thumbnail
+    const thumb = document.createElement('div');
+    thumb.className = 'media-photo-thumbnail';
 
-    container.innerHTML = `
-        <a id="${anchorId}" href="#" data-caption="${item.name}" uk-lightbox>
-            <img id="${imgId}" alt="${item.name}" style="
-                width: 100%;
-                max-height: 220px;
-                object-fit: cover;
-                border-radius: 6px;
-                background-color: #f4f4f4;
-                display: block;
-            " />
-        </a>
-        <div class="media-actions" style="
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            display: flex;
-            gap: 8px;
-            opacity: 0;
-            transition: opacity 0.2s;
-        ">
-            <button class="uk-icon-button" uk-icon="download" title="Download" onclick="downloadFile('${item.key}')"></button>
-            <button class="uk-icon-button" uk-icon="trash" title="Löschen" onclick="deleteFile('${item.key}', event)"></button>
-        </div>
-        <div style="margin-top: 6px;">
-            <div class="uk-text-small uk-text-truncate" title="${item.name}">${item.name}</div>
-            <div class="uk-text-meta">${item.size} • ${item.date}</div>
-        </div>
+    const img = document.createElement('img');
+    img.alt = item.name;
+    img.src = 'icons/file-placeholder.svg'; // Platzhalter, wird ersetzt
+
+    thumb.appendChild(img);
+
+    // Titel & Subinfo
+    const title = document.createElement('div');
+    title.className = 'media-photo-title';
+    title.textContent = item.name;
+
+    const sub = document.createElement('div');
+    sub.className = 'media-photo-sub';
+    sub.textContent = `${item.size} • ${item.date}`;
+
+    // Aktionen (Download / Löschen)
+    const actions = document.createElement('div');
+    actions.className = 'media-actions';
+    actions.innerHTML = `
+        <button class="uk-icon-button" uk-icon="download" title="Download" onclick="downloadFile('${item.key}')"></button>
+        <button class="uk-icon-button" uk-icon="trash" title="Löschen" onclick="deleteFile('${item.key}', event)"></button>
     `;
+    container.appendChild(actions);
 
-    container.addEventListener('mouseenter', () => {
-        container.querySelector('.media-actions').style.opacity = 1;
-    });
-    container.addEventListener('mouseleave', () => {
-        container.querySelector('.media-actions').style.opacity = 0;
-    });
+    // Hover für Aktionen
+    container.addEventListener('mouseenter', () => actions.style.opacity = 1);
+    container.addEventListener('mouseleave', () => actions.style.opacity = 0);
 
+    // URL holen und setzen
     getSignedFileUrl(item.key)
         .then(url => {
-            const img = container.querySelector(`#${imgId}`);
-            const anchor = container.querySelector(`#${anchorId}`);
             img.src = url;
-            anchor.href = url;
         })
         .catch(err => {
             console.warn('❌ Vorschaubild konnte nicht geladen werden:', err.message);
         });
+
+    // Zusammenbauen
+    container.appendChild(thumb);
+    container.appendChild(title);
+    container.appendChild(sub);
 
     return container;
 }
