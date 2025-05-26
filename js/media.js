@@ -1,11 +1,10 @@
 // js/media.js
 
-// Unterstützte Dateitypen für Vorschau / Kacheln
+// 🔓 Unterstützte Dateitypen für Vorschau
 window.isMediaFile = function (name) {
-    return /\.(jpe?g|png|gif|bmp|webp|mp4|webm|pdf|docx?|xlsx?|txt|zip|json)$/i.test(name);
+    return /\.(jpe?g|png|gif|bmp|webp|mp4|webm)$/i.test(name);
 };
 
-// Signed URL vom Server holen
 async function getSignedFileUrl(key) {
     const token = getToken();
     const apiUrl = `${API_BASE}/file-url?key=${encodeURIComponent(key)}`;
@@ -27,7 +26,7 @@ async function getSignedFileUrl(key) {
     return data.url;
 }
 
-// Datei löschen
+// 🗑 Datei löschen
 async function deleteFile(key, e) {
     e.stopPropagation();
     const token = getToken();
@@ -54,7 +53,7 @@ async function deleteFile(key, e) {
     renderContent();
 }
 
-// Datei herunterladen
+// ⬇️ Datei herunterladen
 async function downloadFile(key) {
     try {
         const url = await getSignedFileUrl(key);
@@ -65,69 +64,66 @@ async function downloadFile(key) {
     }
 }
 
-// 📷 Medienkarte (Fotos, PDFs, etc.)
+// 📷 Medienkarte (Vorschau im Grid)
 function createMediaCard(item) {
-    if (!item || !item.name || item.key.endsWith('/')) {
-        return document.createComment('Ungültig – kein Dateiobjekt oder Ordner');
+    if (!item || !item.name || item.key.endsWith('/') || !isMediaFile(item.name)) {
+        return document.createComment('Nicht-Medien-Datei oder Ordner wird nicht angezeigt');
     }
 
-    const outer = document.createElement('div'); // ⚠️ KEINE Breitenklassen hier!
     const container = document.createElement('div');
-    container.className = 'media-photo-card';
+    container.className = 'media-cloud-item';
+    container.style.position = 'relative';
+    container.style.overflow = 'hidden';
 
-    // Thumbnail
-    const thumb = document.createElement('div');
-    thumb.className = 'media-photo-thumbnail';
+    const imgId = `img-${Math.random().toString(36).slice(2)}`;
+    const anchorId = `a-${Math.random().toString(36).slice(2)}`;
 
-    const img = document.createElement('img');
-    img.alt = item.name;
-    img.src = 'icons/file-placeholder.svg'; // wird überschrieben
-
-    thumb.appendChild(img);
-
-    // Titel & Sub
-    const title = document.createElement('div');
-    title.className = 'media-photo-title';
-    title.textContent = item.name;
-
-    const sub = document.createElement('div');
-    sub.className = 'media-photo-sub';
-    sub.textContent = `${item.size} • ${item.date}`;
-
-    // Aktionen
-    const actions = document.createElement('div');
-    actions.className = 'media-actions';
-    actions.innerHTML = `
-        <button class="uk-icon-button" uk-icon="download" title="Download" onclick="downloadFile('${item.key}')"></button>
-        <button class="uk-icon-button" uk-icon="trash" title="Löschen" onclick="deleteFile('${item.key}', event)"></button>
+    container.innerHTML = `
+        <a id="${anchorId}" href="#" data-caption="${item.name}" uk-lightbox>
+            <img id="${imgId}" alt="${item.name}" style="
+                width: 100%;
+                max-height: 220px;
+                object-fit: cover;
+                border-radius: 6px;
+                background-color: #f4f4f4;
+                display: block;
+            " />
+        </a>
+        <div class="media-actions" style="
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: flex;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        ">
+            <button class="uk-icon-button" uk-icon="download" title="Download" onclick="downloadFile('${item.key}')"></button>
+            <button class="uk-icon-button" uk-icon="trash" title="Löschen" onclick="deleteFile('${item.key}', event)"></button>
+        </div>
+        <div style="margin-top: 6px;">
+            <div class="uk-text-small uk-text-truncate" title="${item.name}">${item.name}</div>
+            <div class="uk-text-meta">${item.size} • ${item.date}</div>
+        </div>
     `;
 
-    container.appendChild(actions);
-    container.appendChild(thumb);
-    container.appendChild(title);
-    container.appendChild(sub);
-
-    container.addEventListener('mouseenter', () => actions.style.opacity = 1);
-    container.addEventListener('mouseleave', () => actions.style.opacity = 0);
+    container.addEventListener('mouseenter', () => {
+        container.querySelector('.media-actions').style.opacity = 1;
+    });
+    container.addEventListener('mouseleave', () => {
+        container.querySelector('.media-actions').style.opacity = 0;
+    });
 
     getSignedFileUrl(item.key)
-        .then(url => img.src = url)
-        .catch(() => {
-            console.warn(`❌ Fehler beim Vorschaubild: ${item.name}`);
+        .then(url => {
+            const img = container.querySelector(`#${imgId}`);
+            const anchor = container.querySelector(`#${anchorId}`);
+            img.src = url;
+            anchor.href = url;
+        })
+        .catch(err => {
+            console.warn('❌ Vorschaubild konnte nicht geladen werden:', err.message);
         });
 
-    outer.appendChild(container);
-    return outer;
-}
-
-// Medienkarten-Renderer für Fotos, Dateien, Albeninhalte
-function renderMediaList(data, containerId = 'mediaGrid') {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-
-    container.innerHTML = '';
-    data.forEach(item => {
-        const card = createMediaCard(item);
-        if (card) container.appendChild(card);
-    });
+    return container;
 }

@@ -126,21 +126,19 @@ function renderFotos() {
 }
 
 function renderDateien() {
-    const container = document.getElementById('contentGrid');
-    container.innerHTML = '';
-
-    const grid = document.createElement('div');
-    grid.id = 'mediaGrid';
-    grid.className = 'uk-grid-small';
-    grid.setAttribute('uk-grid', '');
-
-    const path = 'files';
-    const data = folders[path]?.items || [];
-
-    const nonImages = data.filter(i => !i.key.endsWith('/') && isMediaFile(i.name));
-    renderMediaList(nonImages, 'mediaGrid');
-
-    container.appendChild(grid);
+    const grid = document.getElementById('contentGrid');
+    grid.innerHTML = '';
+    const data = folders['files'] || { items: [] };
+    const files = data.items.filter(i => !isMediaFile(i.name));
+    files.forEach(d => {
+        const div = document.createElement('div');
+        div.className = 'uk-card uk-card-default uk-card-body';
+        div.innerHTML = `
+            <div class="uk-text-truncate" title="${d.name}">${d.name}</div>
+            <div class="uk-text-meta">${d.size} – ${d.date}</div>
+        `;
+        grid.appendChild(div);
+    });
 }
 
 function renderContent() {
