@@ -43,7 +43,31 @@
   <ul class="uk-breadcrumb" id="breadcrumb"></ul>
 
   <!-- Inhalt -->
-  <div id="contentGrid" class="uk-margin-top"></div>
+  <div id="contentGrid" class="uk-margin-top">
+    <div uk-grid>
+
+      <!-- Beispiel: Foto -->
+      <div class="media-photo-card">
+        <div class="media-photo-thumbnail">
+          <img src="fotos/IMG_001.jpg" alt="IMG_001.jpg">
+        </div>
+        <div class="media-photo-title">IMG_001.jpg</div>
+        <div class="media-photo-sub">2.4 MB • 2025-05-20</div>
+      </div>
+
+      <!-- Beispiel: Datei -->
+      <div class="media-photo-card">
+        <div class="media-photo-thumbnail">
+          <img src="icons/file-pdf.svg" alt="Beispiel.pdf">
+        </div>
+        <div class="media-photo-title">Beispiel.pdf</div>
+        <div class="media-photo-sub">1.2 MB • 2025-05-22</div>
+      </div>
+
+      <!-- Weitere Kacheln kannst du hier dynamisch oder statisch ergänzen -->
+
+    </div>
+  </div>
 </div>
 
 <!-- Upload Modal -->
@@ -64,7 +88,6 @@
     </form>
   </div>
 </div>
-
 
 <!-- New Folder Modal -->
 <div id="newFolderModal" uk-modal>
