@@ -1,28 +1,21 @@
 // js/media.js
 
-// Unterstützte Dateitypen für Vorschau / Kacheln
+// Unterstützte Dateitypen für Medien-Karten
 window.isMediaFile = function (name) {
     return /\.(jpe?g|png|gif|bmp|webp|mp4|webm|pdf|docx?|xlsx?|txt|zip|json)$/i.test(name);
 };
 
-// Signed URL vom Server holen
+// URL vom Server holen
 async function getSignedFileUrl(key) {
     const token = getToken();
     const apiUrl = `${API_BASE}/file-url?key=${encodeURIComponent(key)}`;
-
     const res = await fetch(apiUrl, {
         method: 'GET',
-        headers: {
-            Authorization: `Bearer ${token}`
-        },
+        headers: { Authorization: `Bearer ${token}` },
         mode: 'cors',
         cache: 'no-store'
     });
-
-    if (!res.ok) {
-        throw new Error(`Presign fehlgeschlagen (${res.status})`);
-    }
-
+    if (!res.ok) throw new Error(`Presign fehlgeschlagen (${res.status})`);
     const data = await res.json();
     return data.url;
 }
@@ -31,25 +24,16 @@ async function getSignedFileUrl(key) {
 async function deleteFile(key, e) {
     e.stopPropagation();
     const token = getToken();
-
     const res = await fetch(`${API_BASE}/delete`, {
         method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ path: key })
     });
-
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        UIkit.notification({
-            message: err?.error || 'Löschen fehlgeschlagen',
-            status: 'danger'
-        });
+        UIkit.notification({ message: err?.error || 'Löschen fehlgeschlagen', status: 'danger' });
         return;
     }
-
     UIkit.notification({ message: 'Datei gelöscht', status: 'success' });
     renderContent();
 }
@@ -65,7 +49,7 @@ async function downloadFile(key) {
     }
 }
 
-// Medienkarte als .media-photo-card in uk-width-Spalte einfügen
+// Medien-Kachel erstellen (.media-photo-card)
 function createMediaCard(item) {
     if (!item || !item.name || item.key.endsWith('/')) {
         return document.createComment('Ungültig – kein Dateiobjekt oder Ordner');
@@ -82,7 +66,7 @@ function createMediaCard(item) {
 
     const img = document.createElement('img');
     img.alt = item.name;
-    img.src = 'icons/file-placeholder.svg'; // Fallback
+    img.src = 'icons/file-placeholder.svg'; // wird ersetzt, wenn Bild vorhanden
 
     thumb.appendChild(img);
 
@@ -112,18 +96,18 @@ function createMediaCard(item) {
     getSignedFileUrl(item.key)
         .then(url => img.src = url)
         .catch(() => {
-            console.warn(`❌ Fehler beim Laden von Vorschaubild: ${item.name}`);
+            console.warn(`❌ Fehler beim Vorschaubild: ${item.name}`);
+            img.src = 'icons/file-placeholder.svg'; // Fallback
         });
 
     outer.appendChild(container);
     return outer;
 }
 
-// Rendering-Funktion z. B. für renderFotos(), renderDateien()
+// Medienliste rendern
 function renderMediaList(data, containerId = 'mediaGrid') {
     const container = document.getElementById(containerId);
     if (!container) return;
-
     container.innerHTML = '';
     data.forEach(item => {
         const card = createMediaCard(item);
