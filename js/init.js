@@ -25,6 +25,16 @@ async function init() {
         'Home': { id: 'Home', name: 'Home', items: [], subfolders: [], parent: null }
     };
 
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(1024));
+        return {
+            raw: bytes,
+            human: (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i]
+        };
+    }
+
     data.forEach(entry => {
         const key = entry.Key;
         if (!key) return;

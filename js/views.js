@@ -115,29 +115,43 @@ function renderFotos() {
     grid.innerHTML = '';
 
     let path = currentPath.join('/');
-    if (activeView === 'fotos') path = 'Home'; // Nur root-Bilder für Fotos
+    if (activeView === 'fotos') path = 'Home';
 
     const fotos = folders[path]?.items?.filter(i => isMediaFile(i.name)) || [];
+
+    fotos.sort((a, b) => new Date(b.date) - new Date(a.date));
+
     fotos.forEach(f => {
         const card = createMediaCard(f);
-        card.classList.add('media-cloud-item', 'media-foto'); // Wichtig: Klasse für kleine Ansicht
+        card.classList.add('media-cloud-item', 'media-foto');
         grid.appendChild(card);
     });
 }
 
+
 function renderDateien() {
     const grid = document.getElementById('contentGrid');
     grid.innerHTML = '';
+
     const data = folders['files'] || { items: [] };
     const files = data.items.filter(i => !isMediaFile(i.name));
+
+    files.sort((a, b) => new Date(b.date) - new Date(a.date));
+
     files.forEach(d => {
-        const div = document.createElement('div');
-        div.className = 'uk-card uk-card-default uk-card-body';
-        div.innerHTML = `
-            <div class="uk-text-truncate" title="${d.name}">${d.name}</div>
-            <div class="uk-text-meta">${d.size} – ${d.date}</div>
-        `;
-        grid.appendChild(div);
+        const card = document.createElement('div');
+        card.className = 'uk-card uk-card-default uk-card-body';
+
+        card.innerHTML = `
+      <a href="#" onclick="downloadFile('${d.key}')" uk-lightbox>
+        <div class="uk-text-small uk-text-truncate" title="${d.name}">
+          <span uk-icon="file-text"></span> ${d.name}
+        </div>
+        <div class="uk-text-meta">${d.size} • ${d.date}</div>
+      </a>
+    `;
+
+        grid.appendChild(card);
     });
 }
 
@@ -174,14 +188,21 @@ function renderContent() {
     const frag = document.createDocumentFragment();
 
     if (currentPath.length === 0) {
-        // ✅ Nur Unterordner (Alben) anzeigen
+        data.subfolders.sort((a, b) => {
+            const dA = new Date(folders[a].items?.[0]?.date || '1970-01-01');
+            const dB = new Date(folders[b].items?.[0]?.date || '1970-01-01');
+            return dB - dA;
+        });
+
         data.subfolders.forEach(n => frag.appendChild(createFolderCard(folders[n])));
     } else {
-
         const filteredItems = data.items.filter(i => isMediaFile(i.name));
+
+        filteredItems.sort((a, b) => new Date(b.date) - new Date(a.date));
+
         filteredItems.forEach(it => {
             const card = createMediaCard(it);
-            card.classList.add('media-cloud-item', 'media-foto'); // Gleiche Darstellung wie in Fotos
+            card.classList.add('media-cloud-item', 'media-foto');
             frag.appendChild(card);
         });
     }
@@ -218,15 +239,12 @@ function renderSyncView() {
     const grid = document.getElementById('contentGrid');
     grid.innerHTML = '';
 
-    // 🔵 Setze Seitenüberschrift
     const heading = document.getElementById('viewHeading');
     if (heading) heading.textContent = 'Sync';
 
-    // 🔵 Verstecke Ansichtsschalter
     const toggleGroup = document.getElementById('viewModeToggles');
     if (toggleGroup) toggleGroup.style.display = 'none';
 
-    // 🔵 Upload UI im selben Stil wie „Fotos“
     const wrapper = document.createElement('div');
     wrapper.className = 'uk-card uk-card-default uk-card-body';
 
@@ -288,10 +306,15 @@ function renderSyncOverview() {
     const syncFolders = Object.keys(folders)
         .filter(p => p.startsWith('sync/') && folders[p].parent === 'sync');
 
+    syncFolders.sort((a, b) => {
+        const dA = new Date(folders[a].items?.[0]?.date || '1970-01-01');
+        const dB = new Date(folders[b].items?.[0]?.date || '1970-01-01');
+        return dB - dA;
+    });
+
     const frag = document.createDocumentFragment();
     syncFolders.forEach(p => frag.appendChild(createFolderCard(folders[p])));
 
     container.appendChild(frag);
     grid.appendChild(container);
 }
-
