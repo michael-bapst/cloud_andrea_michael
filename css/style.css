@@ -57,7 +57,7 @@ body {
    🖼️ Medienkarten (Fotos, Dateien)
    ======================== */
 .media-cloud-item,
-.uk-card {
+.uk-card.media-file {
     aspect-ratio: 1 / 1;
     overflow: hidden;
     border-radius: 8px;
@@ -80,7 +80,7 @@ body {
 }
 
 /* ========================
-   📥 Grid-Darstellung (zentrale Regel!)
+   📥 Grid-Darstellung
    ======================== */
 #contentGrid > div[uk-grid] {
     display: grid;
@@ -88,12 +88,11 @@ body {
     gap: 12px;
 }
 
-/* ========================
-   🔧 Upload-Wrapper / Sync-Fix
-   ======================== */
-#contentGrid > .uk-card {
+/* 👉 Nur Upload-Wrapper (z. B. bei Sync) */
+#contentGrid > .uk-card:not([uk-grid]) {
     max-width: 100%;
     margin-bottom: 20px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.04);
 }
 
 /* ========================
@@ -149,22 +148,24 @@ body {
         padding: 8px;
     }
 
-    .media-cloud-item img {
-        object-fit: cover;
-        aspect-ratio: 1 / 1;
-    }
-
+    .media-cloud-item img,
     .album-thumbnail {
         aspect-ratio: 1 / 1;
+        object-fit: cover;
     }
 
     .media-cloud-item,
-    .uk-card {
+    .uk-card.media-file {
         padding: 6px;
     }
 
     .uk-button-small {
         font-size: 12px;
         padding: 2px 8px;
+    }
+
+    /* ✅ Sync Upload-Karte NICHT in Grid gestreckt */
+    #contentGrid > .uk-card:not([uk-grid]) {
+        grid-column: 1 / -1;
     }
 }
