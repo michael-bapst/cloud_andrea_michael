@@ -70,26 +70,60 @@ function createMediaCard(item) {
         return document.createComment('Nicht-Medien-Datei oder Ordner wird nicht angezeigt');
     }
 
-    const id = Math.random().toString(36).substring(2);
     const container = document.createElement('div');
-    container.className = 'media-cloud-item uk-card uk-card-default uk-padding-small';
+    container.className = 'media-cloud-item';
+    container.style.position = 'relative';
+    container.style.overflow = 'hidden';
+
+    const imgId = `img-${Math.random().toString(36).slice(2)}`;
+    const anchorId = `a-${Math.random().toString(36).slice(2)}`;
 
     container.innerHTML = `
-    <a id="a-${id}" href="#" data-caption="${item.name}" uk-lightbox>
-      <img id="img-${id}" alt="${item.name}" loading="lazy" />
-    </a>
-    <div class="uk-text-small uk-margin-small-top uk-text-truncate" title="${item.name}">${item.name}</div>
-    <div class="uk-text-meta">${item.size} • ${item.date}</div>
-  `;
+        <a id="${anchorId}" href="#" data-caption="${item.name}" uk-lightbox>
+            <img id="${imgId}" alt="${item.name}" style="
+                width: 100%;
+                max-height: 220px;
+                object-fit: cover;
+                border-radius: 6px;
+                background-color: #f4f4f4;
+                display: block;
+            " />
+        </a>
+        <div class="media-actions" style="
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: flex;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        ">
+            <button class="uk-icon-button" uk-icon="download" title="Download" onclick="downloadFile('${item.key}')"></button>
+            <button class="uk-icon-button" uk-icon="trash" title="Löschen" onclick="deleteFile('${item.key}', event)"></button>
+        </div>
+        <div style="margin-top: 6px;">
+            <div class="uk-text-small uk-text-truncate" title="${item.name}">${item.name}</div>
+            <div class="uk-text-meta">${item.size} • ${item.date}</div>
+        </div>
+    `;
+
+    container.addEventListener('mouseenter', () => {
+        container.querySelector('.media-actions').style.opacity = 1;
+    });
+    container.addEventListener('mouseleave', () => {
+        container.querySelector('.media-actions').style.opacity = 0;
+    });
 
     getSignedFileUrl(item.key)
         .then(url => {
-            const img = container.querySelector(`#img-${id}`);
-            const anchor = container.querySelector(`#a-${id}`);
+            const img = container.querySelector(`#${imgId}`);
+            const anchor = container.querySelector(`#${anchorId}`);
             img.src = url;
             anchor.href = url;
         })
-        .catch(() => console.warn('Bild konnte nicht geladen werden'));
+        .catch(err => {
+            console.warn('❌ Vorschaubild konnte nicht geladen werden:', err.message);
+        });
 
     return container;
 }

@@ -154,6 +154,7 @@ function renderDateien() {
     });
 }
 
+
 function renderContent() {
     const grid = document.getElementById('contentGrid');
     grid.innerHTML = '';
@@ -244,29 +245,31 @@ function renderSyncView() {
     const toggleGroup = document.getElementById('viewModeToggles');
     if (toggleGroup) toggleGroup.style.display = 'none';
 
-    // Upload-Form als separater Card-Block außerhalb des Grid-Containers
-    const uploadWrapper = document.createElement('div');
-    uploadWrapper.className = 'uk-card uk-card-default uk-card-body sync-upload';
-    uploadWrapper.innerHTML = `
-    <div class="uk-margin-bottom">
-      <label class="uk-form-label">Wähle einen lokalen Ordner (einmalig):</label>
-      <div class="uk-form-controls">
-        <input class="uk-input" type="file" id="syncFolderInput" webkitdirectory multiple />
+    const wrapper = document.createElement('div');
+    wrapper.className = 'uk-card uk-card-default uk-card-body';
+
+    wrapper.innerHTML = `
+      <div class="uk-margin-bottom">
+        <label class="uk-form-label">Wähle einen lokalen Ordner (einmalig):</label>
+        <div class="uk-form-controls">
+          <input class="uk-input" type="file" id="syncFolderInput" webkitdirectory multiple />
+        </div>
       </div>
-    </div>
 
-    <button class="uk-button uk-button-primary uk-button-small" id="syncUploadBtn">
-      <span uk-icon="upload"></span><span class="uk-margin-small-left">Hochladen</span>
-    </button>
+      <button class="uk-button uk-button-primary uk-button-small" id="syncUploadBtn">
+        <span uk-icon="upload"></span><span class="uk-margin-small-left">Hochladen</span>
+      </button>
 
-    <div id="syncResult" class="uk-margin-top uk-text-muted uk-text-small"></div>
-  `;
+      <div id="syncResult" class="uk-margin-top uk-text-muted uk-text-small"></div>
+    `;
 
-    grid.appendChild(uploadWrapper);
+    grid.appendChild(wrapper);
 
+    // 🔵 Upload-Funktion für Ordner
     document.getElementById('syncUploadBtn').addEventListener('click', async () => {
         const input = document.getElementById('syncFolderInput');
         const files = input.files;
+
         if (!files.length) {
             UIkit.notification({ message: '❗ Kein Ordner ausgewählt', status: 'warning' });
             return;
@@ -293,7 +296,6 @@ function renderSyncView() {
 
     renderSyncOverview();
 }
-
 function renderSyncOverview() {
     const grid = document.getElementById('contentGrid');
 

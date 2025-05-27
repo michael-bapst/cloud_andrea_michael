@@ -2,6 +2,7 @@
     --primary-color: #1e87f0;
     --secondary-color: #222;
     --background-color: #f8f8f8;
+    --card-hover-color: #f0f0f0;
 }
 
 body {
@@ -14,98 +15,155 @@ body {
 }
 
 /* ========================
-   📁 Ordner & Alben
+   🖼️ Medienkarten (Fotos)
    ======================== */
-.album-card,
-.folder-card {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+
+.media-cloud-item {
+    transition: transform 0.15s ease;
+    position: relative;
     overflow: hidden;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.media-cloud-item:hover {
+    transform: scale(1.02);
+    cursor: pointer;
+}
+
+.media-cloud-item img {
+    width: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+    display: block;
+    background-color: #f4f4f4;
+}
+
+/* Spezielle Darstellung in „Fotos“ */
+.media-foto img {
+    max-height: 120px;
+    border-radius: 8px;
+}
+
+.media-actions {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.media-cloud-item:hover .media-actions {
+    opacity: 1;
+}
+
+/* ========================
+   📁 Album-Karten
+   ======================== */
+.folder-card,
+.album-card {
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    background-color: white;
     padding: 10px;
     transition: transform 0.2s ease;
 }
 
-.album-card:hover,
-.folder-card:hover {
+.folder-card:hover,
+.album-card:hover {
     transform: scale(1.02);
+}
+
+.folder-content,
+.album-card-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 12px 0;
+    gap: 8px;
+}
+
+.folder-buttons,
+.album-actions {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 10px;
 }
 
 .album-thumbnail {
     width: 100%;
     aspect-ratio: 1 / 1;
-    background: #f1f1f1;
+    background-color: #f1f1f1;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 8px;
+}
+
+.album-placeholder-icon {
+    color: #bbb;
 }
 
 .album-title {
     font-weight: 600;
     font-size: 15px;
     color: var(--secondary-color);
-    margin-top: 8px;
-    text-align: center;
 }
 
 .album-sub {
     font-size: 12px;
     color: #999;
-    text-align: center;
 }
 
 /* ========================
-   🖼️ Dateien & Medienkarten
-   ======================== */
-.media-cloud-item,
-.uk-card.file-card {
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-    padding: 8px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-.media-cloud-item img {
-    width: 100%;
-    height: auto;
-    border-radius: 6px;
-    object-fit: cover;
-    display: block;
-    background-color: #f4f4f4;
-}
-
-.media-cloud-item .uk-text-small {
-    font-size: 13px;
-}
-
-/* ========================
-   📥 Grid (zentral!)
+   📥 Grid-Darstellung
    ======================== */
 #contentGrid > div[uk-grid] {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 16px;
-}
-
-/* Sync: Upload-Feld nicht im Grid */
-#contentGrid > .uk-card.sync-upload {
-    max-width: 100%;
-    margin-bottom: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
 }
 
 /* ========================
    🧭 UI Komponenten
    ======================== */
+.uk-button {
+    border-radius: 4px;
+    padding: 0 20px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.uk-button-small {
+    font-size: 13px;
+    height: 30px;
+    padding: 2px 10px;
+}
+
+.uk-button-primary {
+    background-color: var(--primary-color);
+}
+
 .uk-breadcrumb {
     background: #fff;
     padding: 15px;
     border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     margin-bottom: 20px;
+}
+
+.uk-breadcrumb li {
+    display: flex;
+    align-items: center;
 }
 
 .uk-modal-dialog {
@@ -118,27 +176,8 @@ body {
     padding: 30px;
 }
 
-.uk-button {
-    border-radius: 4px;
-    padding: 0 20px;
-    height: 40px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-}
-
-.uk-button-small {
-    font-size: 12px;
-    padding: 2px 8px;
-}
-
-#breadcrumb:empty {
-    display: none;
-}
-
 /* ========================
-   📱 Mobile Optimierung
+   📱 Nur Mobile
    ======================== */
 @media (max-width: 640px) {
     .uk-container {
@@ -147,17 +186,31 @@ body {
     }
 
     #contentGrid > div[uk-grid] {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, 1fr); /* Genau 2 Spalten */
         gap: 12px;
     }
 
-    .media-cloud-item img,
-    .album-thumbnail {
+    .media-cloud-item img {
+        width: 100%;
         aspect-ratio: 1 / 1;
+        object-fit: contain; /* 💡 Damit kein Bild abgeschnitten wird */
+        border-radius: 8px;
     }
 
-    .media-cloud-item,
-    .uk-card.file-card {
-        padding: 6px;
+    .media-foto img {
+        max-height: unset; /* verhindert doppelte Begrenzung */
     }
+
+    .folder-card .folder-content {
+        padding: 8px 0;
+    }
+
+    .uk-button-small {
+        font-size: 12px;
+        padding: 2px 8px;
+    }
+}
+
+#breadcrumb:empty {
+    display: none;
 }
