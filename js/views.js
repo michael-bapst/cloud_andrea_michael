@@ -138,19 +138,18 @@ function renderDateien() {
 
     files.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    files.forEach(d => {
+    files.forEach(file => {
         const card = document.createElement('div');
-        card.className = 'uk-card uk-card-default uk-card-body';
+        card.className = 'uk-card uk-card-default uk-card-body file-card';
 
         card.innerHTML = `
-      <a href="#" onclick="downloadFile('${d.key}')" uk-lightbox>
-        <div class="uk-text-small uk-text-truncate" title="${d.name}">
-          <span uk-icon="file-text"></span> ${d.name}
-        </div>
-        <div class="uk-text-meta">${d.size} • ${d.date}</div>
-      </a>
+      <div class="uk-text-small uk-text-truncate" title="${file.name}">
+        <span uk-icon="file-text"></span> ${file.name}
+      </div>
+      <div class="uk-text-meta">${file.size} • ${file.date}</div>
     `;
 
+        card.onclick = () => downloadFile(file.key);
         grid.appendChild(card);
     });
 }
@@ -245,31 +244,29 @@ function renderSyncView() {
     const toggleGroup = document.getElementById('viewModeToggles');
     if (toggleGroup) toggleGroup.style.display = 'none';
 
-    const wrapper = document.createElement('div');
-    wrapper.className = 'uk-card uk-card-default uk-card-body';
-
-    wrapper.innerHTML = `
-      <div class="uk-margin-bottom">
-        <label class="uk-form-label">Wähle einen lokalen Ordner (einmalig):</label>
-        <div class="uk-form-controls">
-          <input class="uk-input" type="file" id="syncFolderInput" webkitdirectory multiple />
-        </div>
+    // Upload-Form als separater Card-Block außerhalb des Grid-Containers
+    const uploadWrapper = document.createElement('div');
+    uploadWrapper.className = 'uk-card uk-card-default uk-card-body sync-upload';
+    uploadWrapper.innerHTML = `
+    <div class="uk-margin-bottom">
+      <label class="uk-form-label">Wähle einen lokalen Ordner (einmalig):</label>
+      <div class="uk-form-controls">
+        <input class="uk-input" type="file" id="syncFolderInput" webkitdirectory multiple />
       </div>
+    </div>
 
-      <button class="uk-button uk-button-primary uk-button-small" id="syncUploadBtn">
-        <span uk-icon="upload"></span><span class="uk-margin-small-left">Hochladen</span>
-      </button>
+    <button class="uk-button uk-button-primary uk-button-small" id="syncUploadBtn">
+      <span uk-icon="upload"></span><span class="uk-margin-small-left">Hochladen</span>
+    </button>
 
-      <div id="syncResult" class="uk-margin-top uk-text-muted uk-text-small"></div>
-    `;
+    <div id="syncResult" class="uk-margin-top uk-text-muted uk-text-small"></div>
+  `;
 
-    grid.appendChild(wrapper);
+    grid.appendChild(uploadWrapper);
 
-    // 🔵 Upload-Funktion für Ordner
     document.getElementById('syncUploadBtn').addEventListener('click', async () => {
         const input = document.getElementById('syncFolderInput');
         const files = input.files;
-
         if (!files.length) {
             UIkit.notification({ message: '❗ Kein Ordner ausgewählt', status: 'warning' });
             return;
@@ -296,6 +293,7 @@ function renderSyncView() {
 
     renderSyncOverview();
 }
+
 function renderSyncOverview() {
     const grid = document.getElementById('contentGrid');
 
