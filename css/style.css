@@ -14,25 +14,27 @@ body {
 }
 
 /* ========================
-   📁 Alben / Ordner
+   📁 Ordner & Alben
    ======================== */
-.album-card {
-    border-radius: 12px;
+.album-card,
+.folder-card {
     background: #fff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     overflow: hidden;
+    padding: 10px;
     transition: transform 0.2s ease;
-    padding: 6px;
 }
 
-.album-card:hover {
+.album-card:hover,
+.folder-card:hover {
     transform: scale(1.02);
 }
 
 .album-thumbnail {
     width: 100%;
     aspect-ratio: 1 / 1;
-    background: #eee;
+    background: #f1f1f1;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -54,65 +56,50 @@ body {
 }
 
 /* ========================
-   🖼️ Medienkarten (Fotos, Dateien)
+   🖼️ Dateien & Medienkarten
    ======================== */
 .media-cloud-item,
-.uk-card.media-file {
-    aspect-ratio: 1 / 1;
-    overflow: hidden;
+.uk-card.file-card {
+    background: #fff;
     border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    background: white;
-    padding: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .media-cloud-item img {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: auto;
     border-radius: 6px;
-    background-color: #f4f4f4;
+    object-fit: cover;
     display: block;
+    background-color: #f4f4f4;
 }
 
 .media-cloud-item .uk-text-small {
-    font-size: 12px;
+    font-size: 13px;
 }
 
 /* ========================
-   📥 Grid-Darstellung
+   📥 Grid (zentral!)
    ======================== */
 #contentGrid > div[uk-grid] {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 12px;
+    gap: 16px;
 }
 
-/* 👉 Nur Upload-Wrapper (z. B. bei Sync) */
-#contentGrid > .uk-card:not([uk-grid]) {
+/* Sync: Upload-Feld nicht im Grid */
+#contentGrid > .uk-card.sync-upload {
     max-width: 100%;
     margin-bottom: 20px;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.04);
 }
 
 /* ========================
-   🎨 UI Komponenten
+   🧭 UI Komponenten
    ======================== */
-.uk-button {
-    border-radius: 4px;
-    padding: 0 20px;
-    height: 40px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-}
-
-.uk-button-small {
-    font-size: 12px;
-    padding: 2px 8px;
-}
-
 .uk-breadcrumb {
     background: #fff;
     padding: 15px;
@@ -131,6 +118,21 @@ body {
     padding: 30px;
 }
 
+.uk-button {
+    border-radius: 4px;
+    padding: 0 20px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.uk-button-small {
+    font-size: 12px;
+    padding: 2px 8px;
+}
+
 #breadcrumb:empty {
     display: none;
 }
@@ -144,28 +146,18 @@ body {
         padding-right: 15px;
     }
 
-    .uk-card-body {
-        padding: 8px;
+    #contentGrid > div[uk-grid] {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
     }
 
     .media-cloud-item img,
     .album-thumbnail {
         aspect-ratio: 1 / 1;
-        object-fit: cover;
     }
 
     .media-cloud-item,
-    .uk-card.media-file {
+    .uk-card.file-card {
         padding: 6px;
-    }
-
-    .uk-button-small {
-        font-size: 12px;
-        padding: 2px 8px;
-    }
-
-    /* ✅ Sync Upload-Karte NICHT in Grid gestreckt */
-    #contentGrid > .uk-card:not([uk-grid]) {
-        grid-column: 1 / -1;
     }
 }
