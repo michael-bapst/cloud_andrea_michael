@@ -80,12 +80,20 @@ body {
 }
 
 /* ========================
-   📥 Grid-Darstellung
+   📥 Grid-Darstellung (zentrale Regel!)
    ======================== */
 #contentGrid > div[uk-grid] {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 12px;
+}
+
+/* ========================
+   🔧 Upload-Wrapper / Sync-Fix
+   ======================== */
+#contentGrid > .uk-card {
+    max-width: 100%;
+    margin-bottom: 20px;
 }
 
 /* ========================
@@ -144,5 +152,19 @@ body {
     .media-cloud-item img {
         object-fit: cover;
         aspect-ratio: 1 / 1;
+    }
+
+    .album-thumbnail {
+        aspect-ratio: 1 / 1;
+    }
+
+    .media-cloud-item,
+    .uk-card {
+        padding: 6px;
+    }
+
+    .uk-button-small {
+        font-size: 12px;
+        padding: 2px 8px;
     }
 }
