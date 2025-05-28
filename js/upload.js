@@ -90,4 +90,6 @@ window.handleUpload = async function (e) {
             renderFotos();
         }
     }
+    sessionStorage.setItem('lastView', activeView);
+    sessionStorage.setItem('lastPath', JSON.stringify(currentPath));
 };

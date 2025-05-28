@@ -88,11 +88,15 @@ async function init() {
         }
     });
 
-    const savedView = localStorage.getItem('lastView');
-    const savedPath = localStorage.getItem('lastPath');
-
-    if (savedView) activeView = savedView;
-    if (savedPath) currentPath = JSON.parse(savedPath);
-
-    switchViewTo(activeView || 'fotos');
+    const lastView = sessionStorage.getItem('lastView');
+    const lastPath = JSON.parse(sessionStorage.getItem('lastPath') || '[]');
+    if (lastView) {
+        activeView = lastView;
+        currentPath = lastPath;
+        switchViewTo(lastView);
+        sessionStorage.removeItem('lastView');
+        sessionStorage.removeItem('lastPath');
+    } else {
+        switchViewTo('fotos');
+    }
 }
