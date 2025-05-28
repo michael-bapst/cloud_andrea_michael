@@ -68,6 +68,7 @@ async function downloadFile(key) {
 function createFileCard(item) {
     const container = document.createElement('div');
     container.className = 'file-tile';
+    container.style.position = 'relative';
 
     const preview = document.createElement('div');
     preview.className = 'file-preview';
@@ -103,6 +104,28 @@ function createFileCard(item) {
         preview.appendChild(icon);
     }
 
+    // 🔧 Action-Buttons
+    const actions = document.createElement('div');
+    actions.className = 'file-actions';
+
+    const btnDownload = document.createElement('button');
+    btnDownload.innerHTML = '<span uk-icon="icon: download"></span>';
+    btnDownload.title = 'Herunterladen';
+    btnDownload.onclick = async (e) => {
+        e.stopPropagation();
+        await downloadFile(item.key);
+    };
+
+    const btnDelete = document.createElement('button');
+    btnDelete.innerHTML = '<span uk-icon="icon: trash"></span>';
+    btnDelete.title = 'Löschen';
+    btnDelete.onclick = async (e) => {
+        await deleteFile(item.key, e);
+    };
+
+    actions.appendChild(btnDownload);
+    actions.appendChild(btnDelete);
+
     const meta = document.createElement('div');
     meta.className = 'file-meta';
     meta.innerHTML = `
@@ -111,8 +134,16 @@ function createFileCard(item) {
     `;
 
     container.appendChild(preview);
+    container.appendChild(actions);
     container.appendChild(meta);
 
-    container.onclick = () => downloadFile(item.key);
+    container.onclick = () => {
+        if (isImage || isVideo) {
+            getSignedFileUrl(item.key).then(url => {
+                UIkit.lightboxPanel({ items: [{ source: url, type: isImage ? 'image' : 'video' }] }).show();
+            });
+        }
+    };
+
     return container;
 }

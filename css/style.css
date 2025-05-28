@@ -181,24 +181,30 @@ body {
    ======================== */
 @media (max-width: 640px) {
     .uk-container {
-        padding-left: 15px;
-        padding-right: 15px;
+        padding-left: 10px;
+        padding-right: 10px;
     }
 
     #contentGrid > div[uk-grid] {
-        grid-template-columns: repeat(2, 1fr); /* Genau 2 Spalten */
-        gap: 12px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px !important;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .file-tile {
+        width: 100%;
     }
 
     .media-cloud-item img {
         width: 100%;
         aspect-ratio: 1 / 1;
-        object-fit: contain; /* 💡 Damit kein Bild abgeschnitten wird */
+        object-fit: contain;
         border-radius: 8px;
     }
 
     .media-foto img {
-        max-height: unset; /* verhindert doppelte Begrenzung */
+        max-height: unset;
     }
 
     .folder-card .folder-content {
@@ -211,48 +217,35 @@ body {
     }
 }
 
-#breadcrumb:empty {
-    display: none;
-}
-.file-tile {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    cursor: pointer;
-    transition: transform 0.15s ease;
-}
-
-.file-tile:hover {
-    transform: scale(1.02);
-}
-
-.file-preview {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    background-color: #f1f1f1;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    margin-bottom: 10px;
-}
-
-.file-preview img,
-.file-preview video {
-    max-width: 100%;
-    max-height: 100%;
-}
-
-.file-meta {
-    text-align: center;
-}
 .file-preview::before {
     content: '';
     float: left;
     padding-top: 100%;
+}
+
+/* 🔧 Action-Buttons in Kachel */
+.file-actions {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    display: flex;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 2;
+}
+
+.file-tile:hover .file-actions {
+    opacity: 1;
+}
+
+.file-actions button {
+    background: rgba(255, 255, 255, 0.85);
+    border: none;
+    border-radius: 4px;
+    padding: 4px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
