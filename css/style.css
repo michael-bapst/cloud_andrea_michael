@@ -214,3 +214,40 @@ body {
 #breadcrumb:empty {
     display: none;
 }
+.file-tile {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.file-tile:hover {
+    transform: scale(1.02);
+}
+
+.file-preview {
+    width: 100%;
+    height: 150px;
+    background-color: #f1f1f1;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.file-preview img,
+.file-preview video {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.file-meta {
+    text-align: center;
+}

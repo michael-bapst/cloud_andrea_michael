@@ -65,65 +65,54 @@ async function downloadFile(key) {
 }
 
 // 📷 Medienkarte (Vorschau im Grid)
-function createMediaCard(item) {
-    if (!item || !item.name || item.key.endsWith('/') || !isMediaFile(item.name)) {
-        return document.createComment('Nicht-Medien-Datei oder Ordner wird nicht angezeigt');
+function createFileCard(item) {
+    const container = document.createElement('div');
+    container.className = 'file-tile';
+
+    const preview = document.createElement('div');
+    preview.className = 'file-preview';
+
+    const fileType = item.name.split('.').pop().toLowerCase();
+    const isImage = /\.(jpe?g|png|gif|bmp|webp)$/i.test(item.name);
+    const isVideo = /\.(mp4|webm)$/i.test(item.name);
+    const isPDF = /\.pdf$/i.test(item.name);
+    const isDoc = /\.(docx?|xlsx?|pptx?|txt|json)$/i.test(item.name);
+    const isZip = /\.(zip|rar|7z)$/i.test(item.name);
+
+    if (isImage) {
+        const img = document.createElement('img');
+        img.alt = item.name;
+        img.style.objectFit = 'contain';
+        getSignedFileUrl(item.key).then(url => {
+            img.src = url;
+        });
+        preview.appendChild(img);
+    } else if (isVideo) {
+        const video = document.createElement('video');
+        video.autoplay = true;
+        video.loop = true;
+        video.muted = true;
+        video.playsInline = true;
+        getSignedFileUrl(item.key).then(url => {
+            video.src = url;
+        });
+        preview.appendChild(video);
+    } else {
+        const icon = document.createElement('span');
+        icon.setAttribute('uk-icon', `icon: ${isPDF ? 'file-pdf' : isDoc ? 'file-text' : isZip ? 'file-zip' : 'file'}; ratio: 2`);
+        preview.appendChild(icon);
     }
 
-    const container = document.createElement('div');
-    container.className = 'media-cloud-item';
-    container.style.position = 'relative';
-    container.style.overflow = 'hidden';
-
-    const imgId = `img-${Math.random().toString(36).slice(2)}`;
-    const anchorId = `a-${Math.random().toString(36).slice(2)}`;
-
-    container.innerHTML = `
-        <a id="${anchorId}" href="#" data-caption="${item.name}" uk-lightbox>
-            <img id="${imgId}" alt="${item.name}" style="
-                width: 100%;
-                max-height: 220px;
-                object-fit: cover;
-                border-radius: 6px;
-                background-color: #f4f4f4;
-                display: block;
-            " />
-        </a>
-        <div class="media-actions" style="
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            display: flex;
-            gap: 8px;
-            opacity: 0;
-            transition: opacity 0.2s;
-        ">
-            <button class="uk-icon-button" uk-icon="download" title="Download" onclick="downloadFile('${item.key}')"></button>
-            <button class="uk-icon-button" uk-icon="trash" title="Löschen" onclick="deleteFile('${item.key}', event)"></button>
-        </div>
-        <div style="margin-top: 6px;">
-            <div class="uk-text-small uk-text-truncate" title="${item.name}">${item.name}</div>
-            <div class="uk-text-meta">${item.size} • ${item.date}</div>
-        </div>
+    const meta = document.createElement('div');
+    meta.className = 'file-meta';
+    meta.innerHTML = `
+        <div class="uk-text-small uk-text-truncate" title="${item.name}">${item.name}</div>
+        <div class="uk-text-meta">${item.size} • ${item.date}</div>
     `;
 
-    container.addEventListener('mouseenter', () => {
-        container.querySelector('.media-actions').style.opacity = 1;
-    });
-    container.addEventListener('mouseleave', () => {
-        container.querySelector('.media-actions').style.opacity = 0;
-    });
+    container.appendChild(preview);
+    container.appendChild(meta);
 
-    getSignedFileUrl(item.key)
-        .then(url => {
-            const img = container.querySelector(`#${imgId}`);
-            const anchor = container.querySelector(`#${anchorId}`);
-            img.src = url;
-            anchor.href = url;
-        })
-        .catch(err => {
-            console.warn('❌ Vorschaubild konnte nicht geladen werden:', err.message);
-        });
-
+    container.onclick = () => downloadFile(item.key);
     return container;
 }

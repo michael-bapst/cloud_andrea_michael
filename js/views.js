@@ -122,12 +122,10 @@ function renderFotos() {
     fotos.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     fotos.forEach(f => {
-        const card = createMediaCard(f);
-        card.classList.add('media-cloud-item', 'media-foto');
+        const card = createFileCard(f);
         grid.appendChild(card);
     });
 }
-
 
 function renderDateien() {
     const grid = document.getElementById('contentGrid');
@@ -201,8 +199,7 @@ function renderContent() {
         filteredItems.sort((a, b) => new Date(b.date) - new Date(a.date));
 
         filteredItems.forEach(it => {
-            const card = createMediaCard(it);
-            card.classList.add('media-cloud-item', 'media-foto');
+            const card = createFileCard(it); // einheitliche Darstellung
             frag.appendChild(card);
         });
     }
