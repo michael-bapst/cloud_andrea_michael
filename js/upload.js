@@ -78,12 +78,16 @@ window.handleUpload = async function (e) {
     fileInput.value = '';
     progressBar.parentElement.style.display = 'none';
 
-    // Ansicht aktualisieren
+    // Ansicht aktualisieren – bleibt im aktuellen View & Ordner
     if (activeView === 'fotos') {
         renderFotos();
     } else if (activeView === 'dateien') {
         renderDateien();
     } else if (activeView === 'alben') {
-        renderContent();
+        if (currentPath.length === 0) {
+            renderContent();
+        } else {
+            renderFotos();
+        }
     }
 };
