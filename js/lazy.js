@@ -27,9 +27,8 @@ function loadNextBatch(container, items) {
     const batch = items.slice(start, end);
 
     batch.forEach(it => {
-        const cardWrapper = document.createElement('div');
-        cardWrapper.appendChild(createFileCard(it));
-        container.insertBefore(cardWrapper, container.querySelector('.lazy-sentinel'));
+        const card = createFileCard(it);
+        container.insertBefore(card, container.querySelector('.lazy-sentinel'));
     });
 
     currentBatch++;
