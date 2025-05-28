@@ -74,12 +74,12 @@ function switchViewTo(view) {
     fabAlben.style.display = isInAlbumRoot ? 'block' : 'none';
     fabDateien.style.display = view === 'dateien' ? 'block' : 'none';
 
-    // Breadcrumb nur bei Album-Unterordner anzeigen
-    document.getElementById('breadcrumb')?.style.setProperty('display',
+    // Breadcrumb
+    document.getElementById('breadcrumb')?.style.setProperty(
+        'display',
         view === 'alben' && currentPath.length > 0 ? 'block' : 'none'
     );
 
-    // Zurück-Button im Album-Unterordner
     const backBtnContainer = document.getElementById('backBtnContainer');
     backBtnContainer.innerHTML = '';
     if (view === 'alben' && currentPath.length > 0) {
@@ -93,7 +93,11 @@ function switchViewTo(view) {
         backBtnContainer.appendChild(backBtn);
     }
 
-    // Ansichten laden
+    // Session speichern (neu)
+    sessionStorage.setItem('lastView', view);
+    sessionStorage.setItem('lastPath', JSON.stringify(currentPath));
+
+    // Ansicht laden
     if (view === 'fotos') {
         renderFotos();
     } else if (view === 'alben') {
@@ -104,8 +108,7 @@ function switchViewTo(view) {
         }
     } else if (view === 'dateien') {
         renderDateien();
-    }
-    else if (view === 'sync') {
+    } else if (view === 'sync') {
         renderSyncView();
     }
 }

@@ -72,15 +72,17 @@ window.handleUpload = async function (e) {
         });
     }));
 
-// pload abgeschlossen & Ansicht korrekt aktualisieren
+// Upload abgeschlossen & Ansicht korrekt aktualisieren
     UIkit.notification({ message: 'Upload abgeschlossen', status: 'success' });
     UIkit.modal('#uploadModal').hide();
     fileInput.value = '';
     progressBar.parentElement.style.display = 'none';
 
+// View merken
     sessionStorage.setItem('lastView', activeView);
     sessionStorage.setItem('lastPath', JSON.stringify(currentPath));
 
+// Inhalte neu laden & im aktuellen Kontext bleiben
     await init();
     switchViewTo(activeView);
 };

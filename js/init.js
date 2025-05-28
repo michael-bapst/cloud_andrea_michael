@@ -93,10 +93,9 @@ async function init() {
     if (lastView && Array.isArray(lastPath)) {
         activeView = lastView;
         currentPath = lastPath;
-        switchViewTo(activeView);
-        sessionStorage.removeItem('lastView');
-        sessionStorage.removeItem('lastPath');
     } else {
-        switchViewTo('fotos');
+        activeView = 'fotos';
+        currentPath = [];
     }
+    switchViewTo(activeView);
 }
