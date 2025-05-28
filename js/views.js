@@ -112,50 +112,49 @@ function switchViewTo(view) {
 
 function renderFotos() {
     const grid = document.getElementById('contentGrid');
-    grid.innerHTML = '';
+    showLoading(grid); // Ladeindikator
 
-    let path = currentPath.join('/');
-    if (activeView === 'fotos') path = 'Home';
-
-    const fotos = folders[path]?.items?.filter(i => isMediaFile(i.name)) || [];
-
-    fotos.sort((a, b) => new Date(b.date) - new Date(a.date));
+    const container = document.createElement('div');
+    container.className = 'uk-grid-small uk-child-width-1-2@s uk-child-width-1-3@m uk-child-width-1-4@l';
+    container.setAttribute('uk-grid', '');
 
     fotos.forEach(f => {
-        const card = createFileCard(f);
-        grid.appendChild(card);
+        const cardWrapper = document.createElement('div');
+        cardWrapper.appendChild(createFileCard(f));
+        container.appendChild(cardWrapper);
     });
+
+    grid.innerHTML = '';
+    grid.appendChild(container);
+    UIkit.update(grid);
 }
 
 function renderDateien() {
     const grid = document.getElementById('contentGrid');
-    grid.innerHTML = '';
+    showLoading(grid);
 
     const data = folders['files'] || { items: [] };
     const files = data.items.filter(i => !isMediaFile(i.name));
-
     files.sort((a, b) => new Date(b.date) - new Date(a.date));
 
+    const container = document.createElement('div');
+    container.className = 'uk-grid-small uk-child-width-1-2@s uk-child-width-1-3@m uk-child-width-1-4@l';
+    container.setAttribute('uk-grid', '');
+
     files.forEach(file => {
-        const card = document.createElement('div');
-        card.className = 'uk-card uk-card-default uk-card-body file-card';
-
-        card.innerHTML = `
-      <div class="uk-text-small uk-text-truncate" title="${file.name}">
-        <span uk-icon="file-text"></span> ${file.name}
-      </div>
-      <div class="uk-text-meta">${file.size} • ${file.date}</div>
-    `;
-
-        card.onclick = () => downloadFile(file.key);
-        grid.appendChild(card);
+        const cardWrapper = document.createElement('div');
+        cardWrapper.appendChild(createFileCard(file));
+        container.appendChild(cardWrapper);
     });
-}
 
+    grid.innerHTML = '';
+    grid.appendChild(container);
+    UIkit.update(grid);
+}
 
 function renderContent() {
     const grid = document.getElementById('contentGrid');
-    grid.innerHTML = '';
+    showLoading(grid); // 🔁 Ladeanzeige (neu)
 
     const container = document.createElement('div');
     container.className = 'uk-grid-small uk-child-width-1-2@s uk-child-width-1-3@m uk-child-width-1-4@l';
@@ -195,17 +194,19 @@ function renderContent() {
         data.subfolders.forEach(n => frag.appendChild(createFolderCard(folders[n])));
     } else {
         const filteredItems = data.items.filter(i => isMediaFile(i.name));
-
         filteredItems.sort((a, b) => new Date(b.date) - new Date(a.date));
 
         filteredItems.forEach(it => {
-            const card = createFileCard(it); // einheitliche Darstellung
-            frag.appendChild(card);
+            const cardWrapper = document.createElement('div');
+            cardWrapper.appendChild(createFileCard(it));
+            container.appendChild(cardWrapper);
         });
     }
 
     container.appendChild(frag);
+    grid.innerHTML = '';
     grid.appendChild(container);
+    UIkit.update(grid);
 
     updateBreadcrumb();
 }
