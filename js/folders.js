@@ -1,5 +1,3 @@
-// js/folders.js
-
 function createFolderCard(f) {
     const date = new Date().toLocaleDateString('de-DE');
     const safeId = encodeURIComponent(f.id);
@@ -7,30 +5,40 @@ function createFolderCard(f) {
     const div = document.createElement('div');
     div.className = 'album-card';
 
-    // Vorschaubild vorbereiten
     const thumbnailWrapper = document.createElement('div');
     thumbnailWrapper.className = 'album-thumbnail';
 
-    // Erstes Bild im Ordner (falls vorhanden)
-    const mediaItem = f.items?.find(i => isMediaFile(i.name));
+    // Bild-Vorschau als Platzhalter
+    thumbnailWrapper.innerHTML = `<span uk-icon="icon: image; ratio: 2" class="album-placeholder-icon"></span>`;
 
-    if (mediaItem) {
-        const img = document.createElement('img');
-        img.alt = mediaItem.name;
-        img.style.width = '100%';
-        img.style.height = '100%';
-        img.style.objectFit = 'cover';
-        img.style.borderRadius = '8px';
-        getSignedFileUrl(mediaItem.key).then(url => {
-            img.src = url;
-        }).catch(() => {
-            img.src = '';
-        });
-        thumbnailWrapper.appendChild(img);
-    } else {
-        // Platzhalter
-        thumbnailWrapper.innerHTML = `<span uk-icon="icon: image; ratio: 2" class="album-placeholder-icon"></span>`;
-    }
+    // Asynchron Bild nachladen (wenn nicht schon vorhanden)
+    const loadPreview = async () => {
+        let mediaItem = f.items?.find(i => isMediaFile(i.name));
+
+        // Wenn leer: Ordnerinhalt durchsuchen
+        if (!mediaItem && folders[f.id]?.items?.length) {
+            mediaItem = folders[f.id].items.find(i => isMediaFile(i.name));
+        }
+
+        if (mediaItem) {
+            const img = document.createElement('img');
+            img.alt = mediaItem.name;
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'cover';
+            img.style.borderRadius = '8px';
+            try {
+                const url = await getSignedFileUrl(mediaItem.key);
+                img.src = url;
+                thumbnailWrapper.innerHTML = ''; // Icon entfernen
+                thumbnailWrapper.appendChild(img);
+            } catch {
+                // kein Bild verfügbar
+            }
+        }
+    };
+
+    loadPreview();
 
     div.innerHTML = `
         <div class="album-card-inner" onclick="navigateToFolder(decodeURIComponent('${safeId}'))">
@@ -49,6 +57,7 @@ function createFolderCard(f) {
             </button>
         </div>
     `;
+
     return div;
 }
 
