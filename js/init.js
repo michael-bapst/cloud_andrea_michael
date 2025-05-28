@@ -90,12 +90,14 @@ async function init() {
 
     const lastView = sessionStorage.getItem('lastView');
     const lastPath = JSON.parse(sessionStorage.getItem('lastPath') || '[]');
+
     if (lastView && Array.isArray(lastPath)) {
-        activeView = lastView;
+        switchViewTo(lastView);
         currentPath = lastPath;
+        sessionStorage.setItem('lastPath', JSON.stringify(currentPath)); // ✅ Sicherstellen, dass es gespeichert bleibt
     } else {
-        activeView = 'fotos';
+        switchViewTo('fotos');
         currentPath = [];
+        sessionStorage.setItem('lastPath', JSON.stringify(currentPath));
     }
-    switchViewTo(activeView);
 }
