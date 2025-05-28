@@ -18,6 +18,10 @@ function formatFileSize(bytes) {
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
     return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
 }
-window.showLoading = function (grid) {
-    grid.innerHTML = '<div class="uk-text-center uk-margin-large-top"><span uk-spinner="ratio: 1.5"></span></div>';
-};
+function showLoading(container) {
+    container.innerHTML = `
+        <div class="uk-width-1-1 uk-text-center uk-margin-top uk-margin-bottom">
+            <span uk-spinner="ratio: 1.5"></span>
+        </div>
+    `;
+}

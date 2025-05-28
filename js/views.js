@@ -114,6 +114,16 @@ function renderFotos() {
     const grid = document.getElementById('contentGrid');
     showLoading(grid); // Ladeindikator
 
+    let path = currentPath.join('/');
+    if (activeView === 'fotos') path = 'Home';
+    if (!folders[path]) {
+        UIkit.notification({ message: `Pfad "${path}" nicht gefunden`, status: 'danger' });
+        return;
+    }
+
+    const fotos = folders[path].items?.filter(i => isMediaFile(i.name)) || [];
+    fotos.sort((a, b) => new Date(b.date) - new Date(a.date));
+
     const container = document.createElement('div');
     container.className = 'uk-grid-small uk-child-width-1-2@s uk-child-width-1-3@m uk-child-width-1-4@l';
     container.setAttribute('uk-grid', '');
