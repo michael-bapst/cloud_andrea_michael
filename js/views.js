@@ -128,11 +128,7 @@ function renderFotos() {
     container.className = 'uk-grid-small uk-child-width-1-2@s uk-child-width-1-3@m uk-child-width-1-4@l';
     container.setAttribute('uk-grid', '');
 
-    fotos.forEach(f => {
-        const cardWrapper = document.createElement('div');
-        cardWrapper.appendChild(createFileCard(f));
-        container.appendChild(cardWrapper);
-    });
+    initLazyLoad(container, fotos);
 
     grid.innerHTML = '';
     grid.appendChild(container);

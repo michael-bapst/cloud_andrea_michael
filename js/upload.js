@@ -72,24 +72,15 @@ window.handleUpload = async function (e) {
         });
     }));
 
-    // Upload fertig
+// pload abgeschlossen & Ansicht korrekt aktualisieren
     UIkit.notification({ message: 'Upload abgeschlossen', status: 'success' });
     UIkit.modal('#uploadModal').hide();
     fileInput.value = '';
     progressBar.parentElement.style.display = 'none';
 
-    // Ansicht aktualisieren – bleibt im aktuellen View & Ordner
-    if (activeView === 'fotos') {
-        renderFotos();
-    } else if (activeView === 'dateien') {
-        renderDateien();
-    } else if (activeView === 'alben') {
-        if (currentPath.length === 0) {
-            renderContent();
-        } else {
-            renderFotos();
-        }
-    }
     sessionStorage.setItem('lastView', activeView);
     sessionStorage.setItem('lastPath', JSON.stringify(currentPath));
+
+    await init();
+    switchViewTo(activeView);
 };

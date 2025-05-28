@@ -90,10 +90,10 @@ async function init() {
 
     const lastView = sessionStorage.getItem('lastView');
     const lastPath = JSON.parse(sessionStorage.getItem('lastPath') || '[]');
-    if (lastView) {
+    if (lastView && Array.isArray(lastPath)) {
         activeView = lastView;
         currentPath = lastPath;
-        switchViewTo(lastView);
+        switchViewTo(activeView);
         sessionStorage.removeItem('lastView');
         sessionStorage.removeItem('lastPath');
     } else {
