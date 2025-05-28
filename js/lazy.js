@@ -1,31 +1,40 @@
+let itemsPerBatch = 30;
+let currentBatch = 0;
+let observer;
+
 function initLazyLoad(container, items) {
-    const batchSize = 30;
-    let start = 0;
+    currentBatch = 0;
+    container.innerHTML = '';
 
-    function loadNext() {
-        const slice = items.slice(start, start + batchSize);
-        slice.forEach(item => {
-            const wrapper = document.createElement('div');
-            wrapper.appendChild(createFileCard(item));
-            container.appendChild(wrapper);
-        });
-        start += batchSize;
+    loadNextBatch(container, items);
 
-        if (start < items.length) {
-            const sentinel = document.createElement('div');
-            sentinel.className = 'lazy-sentinel';
-            observer.observe(sentinel);
-            container.appendChild(sentinel);
-        }
-    }
+    const sentinel = document.createElement('div');
+    sentinel.className = 'lazy-sentinel';
+    container.appendChild(sentinel);
 
-    const observer = new IntersectionObserver(entries => {
+    observer = new IntersectionObserver(entries => {
         if (entries[0].isIntersecting) {
-            observer.disconnect();
-            container.querySelector('.lazy-sentinel')?.remove();
-            loadNext();
+            loadNextBatch(container, items);
         }
+    }, { rootMargin: '100px' });
+
+    observer.observe(sentinel);
+}
+
+function loadNextBatch(container, items) {
+    const start = currentBatch * itemsPerBatch;
+    const end = start + itemsPerBatch;
+    const batch = items.slice(start, end);
+
+    batch.forEach(it => {
+        const cardWrapper = document.createElement('div');
+        cardWrapper.appendChild(createFileCard(it));
+        container.insertBefore(cardWrapper, container.querySelector('.lazy-sentinel'));
     });
 
-    loadNext();
+    currentBatch++;
+
+    if (end >= items.length && observer) {
+        observer.disconnect();
+    }
 }
