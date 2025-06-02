@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
+  <script>
+    const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+    if (!token) {
+      window.location.href = 'index.html';
+    }
+  </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Andrea Lio Michael</title>
@@ -149,13 +155,6 @@
 <script src="js/views.js"></script>
 <script src="js/lazy.js"></script>
 <script src="js/init.js"></script>
-
-<script>
-  const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
-  if (!token) {
-    window.location.href = 'index.html';
-  }
-</script>
 
 </body>
 </html>
