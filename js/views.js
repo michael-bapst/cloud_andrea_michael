@@ -131,7 +131,11 @@ function renderFotos() {
     container.className = 'uk-grid-small uk-child-width-1-2@s uk-child-width-1-3@m uk-child-width-1-4@l';
     container.setAttribute('uk-grid', '');
 
-    initLazyLoad(container, fotos);
+    fotos.forEach(item => {
+        const wrapper = document.createElement('div');
+        wrapper.appendChild(createFileCard(item));
+        container.appendChild(wrapper);
+    });
 
     grid.innerHTML = '';
     grid.appendChild(container);
